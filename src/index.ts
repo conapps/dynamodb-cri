@@ -1,16 +1,15 @@
-import { DynamoDBCRIModel } from './model';
-import { DynamoDBStreamEvent } from 'aws-lambda';
+import { DynamoDBCRIModel } from "./model";
+import { DynamoDBStreamEvent } from "aws-lambda";
 import {
   IDynamoDBCRIGlobalConfig,
   IDynamoDBCRIModelConfig,
   IDynamoDBCRIModel
-} from './types';
-import { processStreams } from './processStreams';
+} from "./types";
+import { processStreams } from "./processStreams";
 
 var globalConfig: IDynamoDBCRIGlobalConfig = {};
 
 export namespace DynamoDBCRI {
-
   export function getConfig() {
     return Object.assign({}, globalConfig);
   }
@@ -21,7 +20,7 @@ export namespace DynamoDBCRI {
     return createModel(config);
   }
 
-  export function createModel(config: IDynamoDBCRIModelConfig): any {
+  function createModel(config: IDynamoDBCRIModelConfig): any {
     class Model extends DynamoDBCRIModel {
       constructor() {
         super({ ...globalConfig, ...config });
