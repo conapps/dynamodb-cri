@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "cli": "ts-node scripts/cli",
-    "test": "jest --watch"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
