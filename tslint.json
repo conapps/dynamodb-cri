@@ -1,0 +1,3 @@
+{
+  "extends": ["tslint:latest", "tslint-blueprint", "tslint-config-prettier"]
+}
