@@ -1,7 +1,3 @@
-# dynamodb-cri
-
-
-
 # DynamoDB-CRI
 
 The AWS JavaScript SDK provides access to DynamoDB without restrains. But sometimes creating a model or defining one for the tables to reduce costs is difficult. With this library we take a one table model design pattern and we build a library around that model to easy the access of data and maintenance of all indexes and data updated.
