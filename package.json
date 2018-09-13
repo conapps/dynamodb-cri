@@ -1,12 +1,17 @@
 {
   "name": "dynamodb-cri",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
     "cli": "ts-node scripts/cli",
     "test": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conapps/dynamodb-cri"
   },
   "jest": {
     "transform": {
