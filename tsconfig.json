@@ -4,7 +4,7 @@
     "lib": ["es2017"],
     "moduleResolution": "node",
     "module": "commonjs",
-    "declaration": false,
+    "declaration": true,
     "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
