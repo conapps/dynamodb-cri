@@ -82,7 +82,7 @@ UserModel.index({
 // until you call the `promise()` methods on them.
 
 // Promise
-model.get({id}).promise()
+model.get({id: 'abc'}).promise()
   .then((data) => {
     /* ... */
   })
