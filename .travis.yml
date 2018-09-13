@@ -1,7 +1,7 @@
-language : node_js
-node_js :
- - stable
+language: node_js
+node_js:
+  - v8
 install:
- - npm install
+  - yarn install
 script:
- - npm test
+  - yarn test
