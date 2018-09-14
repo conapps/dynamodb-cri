@@ -1,5 +1,4 @@
-import { DynamoDB } from 'aws-sdk';
-import { IDynamoDBCRIItem } from './types';
+import { DynamoDB } from "aws-sdk";
 
 export interface IDynamoDBCRIGlobalConfig {
   tableName?: string;
@@ -46,11 +45,11 @@ export interface IDynamoDBCRIModel {
   update(body: IDynamoDBCRIItem): IDynamoDBCRIModel;
   query(options?: IDynamoDBCRIIndexOptions): IDynamoDBCRIModel;
   putIndexItems(body: IItem): void;
-  deleteIndexItems(key : IDynamoDBKey): void;
+  deleteIndexItems(key: IDynamoDBKey): void;
   updateIndexesItems(body: IDynamoDBCRIItem | IItem): Promise<void>;
 }
 
-export interface IDynamoDBCRIKeyCondition { 
+export interface IDynamoDBCRIKeyCondition {
   key: string;
   expression: string;
 }
@@ -75,7 +74,6 @@ export interface IGSIKItem {
   __v: string;
   [key: string]: any;
 }
-
 
 export interface IDynamoDBCRIResponseItems {
   items: IItem[];

@@ -35,7 +35,7 @@ export var OldImage = {
     S: 'name'
   },
   document: {
-    S: '123.456.78-9'
+    S: '1.234.567-9'
   },
   email: {
     S: 'test@mail.com'

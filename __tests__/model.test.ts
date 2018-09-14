@@ -42,7 +42,7 @@ var config: IDynamoDBCRIModelConfig = {
   gsik
 };
 
-var TestModel = DynamoDBCRI.create(config);
+var TestModel = DynamoDBCRI.createModel(config);
 
 var id = cuid();
 var name = 'SomeName';
@@ -55,16 +55,16 @@ describe('Model', () => {
   });
 
   test('should be an instance of DynamoDBCRIModel', () => {
-    expect(TestModel instanceof DynamoDBCRIModel).toBe(true);
+    expect(TestModel() instanceof DynamoDBCRIModel).toBe(true);
   });
 
   describe('#promise()', () => {
     test('should be a function', () => {
-      expect(typeof TestModel.promise).toBe('function');
+      expect(typeof TestModel().promise).toBe('function');
     });
 
     test('should return a promise', () => {
-      expect(TestModel.promise() instanceof Promise).toBe(true);
+      expect(TestModel().promise() instanceof Promise).toBe(true);
     });
   });
   describe('#get()', () => {
@@ -82,17 +82,21 @@ describe('Model', () => {
     });
 
     test('should be a function', () => {
-      expect(typeof TestModel.get).toBe('function');
+      expect(typeof TestModel().get).toBe('function');
     });
 
     test('should configure a call to the `documentClient.get` function', async () => {
-      await TestModel.get({ id }).promise();
+      await TestModel()
+        .get({ id })
+        .promise();
 
       expect(getStub.calledOnce).toBe(true);
     });
 
     test('should call the `documentClient.get` function with appropriate params', async () => {
-      await TestModel.get({ id }).promise();
+      await TestModel()
+        .get({ id })
+        .promise();
 
       expect(getStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -104,7 +108,9 @@ describe('Model', () => {
     });
 
     test('should call the `documentClient.get` function with appropriate params', async () => {
-      await TestModel.get({ id, index: 'mail' }).promise();
+      await TestModel()
+        .get({ id, index: 'mail' })
+        .promise();
 
       expect(getStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -122,7 +128,8 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.get` method');
       });
 
-      await TestModel.get({ id })
+      await TestModel()
+        .get({ id })
         .promise()
         .catch(error => {
           expect(error).not.toBe(null);
@@ -130,7 +137,9 @@ describe('Model', () => {
         });
 
       try {
-        await TestModel.get({ id }).promise();
+        await TestModel()
+          .get({ id })
+          .promise();
       } catch (error) {
         expect(error).not.toBe(null);
         expect(error.message).toBe('Error with `documentClient.get` method');
@@ -152,18 +161,22 @@ describe('Model', () => {
     });
 
     test('should be a function', () => {
-      expect(typeof TestModel.delete).toBe('function');
+      expect(typeof TestModel().delete).toBe('function');
     });
 
     /***************** Tests for models without index tracking *****************/
     test('should configure a call to the `documentClient.delete` function', async () => {
-      await TestModel.delete({ id }).promise();
+      await TestModel()
+        .delete({ id })
+        .promise();
 
       return expect(deleteStub.calledOnce).toBe(true);
     });
 
     test('should call the `documentClient.delete` method with appropriate params', async () => {
-      await TestModel.delete({ id }).promise();
+      await TestModel()
+        .delete({ id })
+        .promise();
 
       expect(deleteStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -181,7 +194,8 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.delete` method');
       });
 
-      await TestModel.delete({ id })
+      await TestModel()
+        .delete({ id })
         .promise()
         .catch(error => {
           expect(error).not.toBe(null);
@@ -191,7 +205,9 @@ describe('Model', () => {
         });
 
       try {
-        await TestModel.delete({ id }).promise();
+        await TestModel()
+          .delete({ id })
+          .promise();
       } catch (error) {
         expect(error).not.toBe(null);
         expect(error.message).toBe('Error with `documentClient.delete` method');
@@ -199,19 +215,23 @@ describe('Model', () => {
     });
 
     /***************** Tests for models with index tracking *****************/
-    var TestModelWithTrack = DynamoDBCRI.create({
+    var TestModelWithTrack = DynamoDBCRI.createModel({
       ...config,
       trackIndexes: true
     });
 
     test('should configure a calls to the `documentClient.delete` function', async () => {
-      await TestModelWithTrack.delete({ id }).promise();
+      await TestModelWithTrack()
+        .delete({ id })
+        .promise();
 
       return expect(deleteStub.callCount).toBe(3);
     });
 
     test('should call the `documentClient.delete` method with appropriate params', async () => {
-      await TestModelWithTrack.delete({ id }).promise();
+      await TestModelWithTrack()
+        .delete({ id })
+        .promise();
 
       expect(deleteStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -254,35 +274,43 @@ describe('Model', () => {
     });
 
     test('should be a function', () => {
-      expect(typeof TestModel.create).toBe('function');
+      expect(typeof TestModel().create).toBe('function');
     });
 
     /******* Tests for Model without indexes ********/
-    var TestModelWOIndexes = DynamoDBCRI.create(omit(config, ['indexes']));
+    var TestModelWOIndexes = DynamoDBCRI.createModel(omit(config, ['indexes']));
 
     test('should configure a call to the `documentClient.put` function', async () => {
-      await TestModelWOIndexes.create({ id, name, email, document }).promise();
+      await TestModelWOIndexes()
+        .create({ id, name, email, document })
+        .promise();
 
       return expect(putStub.calledOnce).toBe(true);
     });
 
     test('should return the created item', async () => {
-      var data = await TestModelWOIndexes.create({ id, name }).promise();
+      var data = await TestModelWOIndexes()
+        .create({ id, name })
+        .promise();
 
       expect(data).toEqual({ item: { id, name } });
     });
 
     test('should add a random id value if undefined', async () => {
-      var data = await TestModelWOIndexes.create({ name }).promise();
+      var data = await TestModelWOIndexes()
+        .create({ name })
+        .promise();
       expect(data && !!data.item.id).toEqual(true);
     });
 
     test('should add a `createdAt` and `updatedAt` values if `track` is true', async () => {
-      var TestModelWOIndexes = DynamoDBCRI.create({
+      var TestModelWOIndexes = DynamoDBCRI.createModel({
         ...omit(config, ['indexes']),
         trackDates: true
       });
-      var data = await TestModelWOIndexes.create({ name }).promise();
+      var data = await TestModelWOIndexes()
+        .create({ name })
+        .promise();
 
       data || (data = {});
       expect(!!data.item.createdAt).toEqual(true);
@@ -291,7 +319,9 @@ describe('Model', () => {
     });
 
     test('should call the `documentClient.put` function with appropriate params', async () => {
-      await TestModelWOIndexes.create({ id, name, email, document }).promise();
+      await TestModelWOIndexes()
+        .create({ id, name, email, document })
+        .promise();
 
       expect(putStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -309,13 +339,17 @@ describe('Model', () => {
     /******* Tests for Model with indexes without tracking ********/
 
     test('should configure a call to the `documentClient.put` function', async () => {
-      await TestModel.create({ id, name, email, document }).promise();
+      await TestModel()
+        .create({ id, name, email, document })
+        .promise();
 
       return expect(putStub.calledOnce).toBe(true);
     });
 
     test('should call the `documentClient.put` function with appropriate params', async () => {
-      await TestModel.create({ id, name, email, document }).promise();
+      await TestModel()
+        .create({ id, name, email, document })
+        .promise();
 
       expect(putStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -331,25 +365,31 @@ describe('Model', () => {
     });
 
     test('should return the created item', async () => {
-      var data = await TestModel.create({ id, name }).promise();
+      var data = await TestModel()
+        .create({ id, name })
+        .promise();
 
       expect(data).toEqual({ item: { id, name } });
     });
 
     /******* Tests for Model with indexes with tracking ********/
-    var TestModelWithTrack = DynamoDBCRI.create({
+    var TestModelWithTrack = DynamoDBCRI.createModel({
       ...config,
       trackIndexes: true
     });
 
     test('should configure a call to the `documentClient.put` function', async () => {
-      await TestModelWithTrack.create({ id, name, email, document }).promise();
+      await TestModelWithTrack()
+        .create({ id, name, email, document })
+        .promise();
 
       return expect(putStub.callCount).toBe(3);
     });
 
     test('should call the `documentClient.put` function with appropriate params', async () => {
-      await TestModelWithTrack.create({ id, name, email, document }).promise();
+      await TestModelWithTrack()
+        .create({ id, name, email, document })
+        .promise();
 
       expect(putStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -386,12 +426,14 @@ describe('Model', () => {
     });
 
     test('should return the created item', async () => {
-      var data = await TestModelWithTrack.create({
-        id,
-        name,
-        email,
-        document
-      }).promise();
+      var data = await TestModelWithTrack()
+        .create({
+          id,
+          name,
+          email,
+          document
+        })
+        .promise();
 
       expect(data).toEqual({ item: { id, name, email, document } });
     });
@@ -402,7 +444,8 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.put` method');
       });
 
-      await TestModel.create({ id, name })
+      await TestModel()
+        .create({ id, name })
         .promise()
         .catch(error => {
           expect(error).not.toBe(null);
@@ -410,7 +453,9 @@ describe('Model', () => {
         });
 
       try {
-        await TestModel.create({ id, name }).promise();
+        await TestModel()
+          .create({ id, name })
+          .promise();
       } catch (error) {
         expect(error).not.toBe(null);
         expect(error.message).toBe('Error with `documentClient.put` method');
@@ -453,20 +498,24 @@ describe('Model', () => {
     });
 
     test('should be a function', () => {
-      expect(typeof TestModel.update).toBe('function');
+      expect(typeof TestModel().update).toBe('function');
     });
 
     /******* Tests for Model with indexes without tracking ********/
 
     test('should call the `documentClient.update` function', async () => {
-      await TestModel.update({ id, name: 'newName' }).promise();
+      await TestModel()
+        .update({ id, name: 'newName' })
+        .promise();
 
       expect(updateStub.calledOnce).toBe(true);
     });
 
     test('should call the `documentClient.update` with valid params', async () => {
       var name = 'newName';
-      await TestModel.update({ id, name }).promise();
+      await TestModel()
+        .update({ id, name })
+        .promise();
 
       expect(updateStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -486,16 +535,19 @@ describe('Model', () => {
 
     test('should add an `updatedAt` value if `track` is `true`', async () => {
       var _config = { ...config, trackDates: true };
-      var TestModel = DynamoDBCRI.create(_config);
+      var TestModel = DynamoDBCRI.createModel(_config);
 
-      var data = await TestModel.update({ id, name }).promise();
+      var data = await TestModel()
+        .update({ id, name })
+        .promise();
 
       expect(data).not.toBe(undefined);
       expect(data && typeof data.item.updatedAt).toBe('string');
     });
 
     test('should fail if the hash key is missing', async () => {
-      await TestModel.update({ name })
+      await TestModel()
+        .update({ name })
         .promise()
         .catch(error => {
           expect(error).not.toBe(null);
@@ -504,7 +556,9 @@ describe('Model', () => {
     });
 
     test('should construct the `UpdateExpression` param correctly', async () => {
-      await TestModel.update({ id, name, email }).promise();
+      await TestModel()
+        .update({ id, name, email })
+        .promise();
 
       var params = updateStub.args[0][0];
       expect(params.UpdateExpression).toEqual(
@@ -513,7 +567,9 @@ describe('Model', () => {
     });
 
     test('should construct the `ExpressionAttributeValues` correctly', async () => {
-      await TestModel.update({ id, name, email }).promise();
+      await TestModel()
+        .update({ id, name, email })
+        .promise();
 
       var params = updateStub.args[0][0];
       expect(params.ExpressionAttributeNames).toEqual({
@@ -523,7 +579,9 @@ describe('Model', () => {
     });
 
     test('should construct the `ExpressionAttributeNames` correctly', async () => {
-      await TestModel.update({ id, name, email }).promise();
+      await TestModel()
+        .update({ id, name, email })
+        .promise();
 
       var params = updateStub.args[0][0];
       expect(params.ExpressionAttributeValues).toEqual({
@@ -534,13 +592,15 @@ describe('Model', () => {
 
     /******* Tests for Model with indexes without tracking ********/
 
-    var TestModelWithTrack = DynamoDBCRI.create({
+    var TestModelWithTrack = DynamoDBCRI.createModel({
       ...config,
       trackIndexes: true
     });
 
     test('should call the `documentClient.update` function but not update the indexes', async () => {
-      await TestModelWithTrack.update({ id, name: 'newName' }).promise();
+      await TestModelWithTrack()
+        .update({ id, name: 'newName' })
+        .promise();
 
       expect(updateStub.calledOnce).toBe(true);
       expect(getStub.called).toBe(false);
@@ -549,7 +609,9 @@ describe('Model', () => {
 
     test('should call the `documentClient.update` with valid params', async () => {
       var name = 'newName';
-      await TestModelWithTrack.update({ id, name }).promise();
+      await TestModelWithTrack()
+        .update({ id, name })
+        .promise();
 
       expect(updateStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -568,12 +630,14 @@ describe('Model', () => {
     });
 
     test('should call the `documentClient.update` function and update the indexes', async () => {
-      await TestModelWithTrack.update({
-        id,
-        name: 'newName',
-        email: 'newm@mail.com',
-        document: '1.234.567-8'
-      }).promise();
+      await TestModelWithTrack()
+        .update({
+          id,
+          name: 'newName',
+          email: 'newm@mail.com',
+          document: '1.234.567-8'
+        })
+        .promise();
 
       expect(updateStub.calledOnce).toBe(true);
       expect(getStub.calledOnce).toBe(true);
@@ -582,12 +646,14 @@ describe('Model', () => {
 
     test('should call the `documentClient.update` with valid params', async () => {
       var name = 'newName';
-      await TestModelWithTrack.update({
-        id,
-        name,
-        email: 'newm@mail.com',
-        document: '1.234.567-8'
-      }).promise();
+      await TestModelWithTrack()
+        .update({
+          id,
+          name,
+          email: 'newm@mail.com',
+          document: '1.234.567-8'
+        })
+        .promise();
 
       expect(updateStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -646,7 +712,8 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.get` method');
       });
 
-      await TestModel.update({ id, name })
+      await TestModel()
+        .update({ id, name })
         .promise()
         .catch(error => {
           expect(error).not.toBe(null);
@@ -654,7 +721,9 @@ describe('Model', () => {
         });
 
       try {
-        await TestModel.update({ id, name }).promise();
+        await TestModel()
+          .update({ id, name })
+          .promise();
       } catch (error) {
         expect(error).not.toBe(null);
         expect(error.message).toBe('Error with `documentClient.get` method');
@@ -668,7 +737,8 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.put` method');
       });
 
-      await TestModel.update({ id, name })
+      await TestModel()
+        .update({ id, name })
         .promise()
         .catch(error => {
           expect(error).not.toBe(null);
@@ -676,7 +746,9 @@ describe('Model', () => {
         });
 
       try {
-        await TestModel.update({ id, name }).promise();
+        await TestModel()
+          .update({ id, name })
+          .promise();
       } catch (error) {
         expect(error).not.toBe(null);
         expect(error.message).toBe('Error with `documentClient.put` method');
@@ -690,7 +762,8 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.update` method');
       });
 
-      await TestModel.update({ id, name })
+      await TestModel()
+        .update({ id, name })
         .promise()
         .catch(error => {
           expect(error).not.toBe(null);
@@ -700,7 +773,9 @@ describe('Model', () => {
         });
 
       try {
-        await TestModel.update({ id, name }).promise();
+        await TestModel()
+          .update({ id, name })
+          .promise();
       } catch (error) {
         expect(error).not.toBe(null);
         expect(error.message).toBe('Error with `documentClient.update` method');
@@ -757,36 +832,42 @@ describe('Model', () => {
     });
 
     test('should be a function', () => {
-      expect(typeof TestModel.query).toBe('function');
+      expect(typeof TestModel().query).toBe('function');
     });
 
     test('should call the `documentClient.query` method, but not `documentClient.get` ', async () => {
-      await TestModel.query({}).promise();
+      await TestModel()
+        .query({})
+        .promise();
 
       expect(queryStub.callCount).toBe(1);
       expect(getStub.callCount).toBe(0);
     });
 
     test('should call the `documentClient.query` method, but not `documentClient.get` ', async () => {
-      await TestModel.query({
-        keyCondition: {
-          key: 'TestName',
-          expression: '#key = :key'
-        },
-        index: 'document',
-        unwrapIndexItems: true
-      }).promise();
+      await TestModel()
+        .query({
+          keyCondition: {
+            key: 'TestName',
+            expression: '#key = :key'
+          },
+          index: 'document',
+          unwrapIndexItems: true
+        })
+        .promise();
 
       expect(queryStub.callCount).toBe(1);
       expect(getStub.callCount).toBe(1);
     });
 
     test('should query the table without `tenant` ', async () => {
-      var NoTentantModel = DynamoDBCRI.create({
+      var NoTentantModel = DynamoDBCRI.createModel({
         ...config,
         tenant: undefined
       });
-      await NoTentantModel.query({}).promise();
+      await NoTentantModel()
+        .query({})
+        .promise();
       expect(queryStub.args[0][0]).toEqual({
         TableName: tableName,
         IndexName: indexName,
@@ -798,7 +879,9 @@ describe('Model', () => {
     });
 
     test('should query only with the `secondary`', async () => {
-      await TestModel.query({}).promise();
+      await TestModel()
+        .query({})
+        .promise();
       expect(queryStub.args[0][0]).toEqual({
         TableName: tableName,
         IndexName: indexName,
@@ -811,7 +894,9 @@ describe('Model', () => {
 
     test('should allow to configure the `Limit` value', async () => {
       var limit = 200;
-      await TestModel.query({ limit }).promise();
+      await TestModel()
+        .query({ limit })
+        .promise();
       expect(queryStub.args[0][0]).toEqual({
         TableName: tableName,
         IndexName: indexName,
@@ -823,12 +908,14 @@ describe('Model', () => {
     });
 
     test('should call the `documentClient.query` method with appropiate params', async () => {
-      await TestModel.query({
-        keyCondition: {
-          key: 'TestName',
-          expression: '#key = :key'
-        }
-      }).promise();
+      await TestModel()
+        .query({
+          keyCondition: {
+            key: 'TestName',
+            expression: '#key = :key'
+          }
+        })
+        .promise();
 
       expect(queryStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -847,7 +934,9 @@ describe('Model', () => {
     });
 
     test('should return the items with normalized information', async () => {
-      var data: any = await TestModel.query({}).promise();
+      var data: any = await TestModel()
+        .query({})
+        .promise();
 
       expect(data).toEqual({
         count: 1,
@@ -882,7 +971,9 @@ describe('Model', () => {
             })
         };
       });
-      var data: any = await TestModel.query({ index: document }).promise();
+      var data: any = await TestModel()
+        .query({ index: document })
+        .promise();
 
       expect(data).toEqual({
         count: 1,
@@ -914,14 +1005,16 @@ describe('Model', () => {
             })
         };
       });
-      var data: any = await TestModel.query({
-        keyCondition: {
-          key: 'TestName',
-          expression: '#key = :key'
-        },
-        index: document,
-        unwrapIndexItems: true
-      }).promise();
+      var data: any = await TestModel()
+        .query({
+          keyCondition: {
+            key: 'TestName',
+            expression: '#key = :key'
+          },
+          index: document,
+          unwrapIndexItems: true
+        })
+        .promise();
 
       expect(data).toEqual({
         count: 1,
@@ -937,9 +1030,11 @@ describe('Model', () => {
     });
 
     test('should convert the offset from base64 to a DynamoDBKey when tenant is not undefined', async () => {
-      await TestModel.query({
-        offset: btoa(JSON.stringify({ pk: id }))
-      }).promise();
+      await TestModel()
+        .query({
+          offset: btoa(JSON.stringify({ pk: id }))
+        })
+        .promise();
 
       expect(queryStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -956,9 +1051,11 @@ describe('Model', () => {
     });
 
     test('should return a valid offset value', async () => {
-      var data = await TestModel.query({
-        offset: btoa(JSON.stringify({ pk: id }))
-      }).promise();
+      var data = await TestModel()
+        .query({
+          offset: btoa(JSON.stringify({ pk: id }))
+        })
+        .promise();
 
       expect(data && data.offset).toEqual(
         btoa(
@@ -970,9 +1067,11 @@ describe('Model', () => {
     });
 
     test('should handle a real offset value', async () => {
-      await TestModel.query({
-        offset: 'eyJwayI6InFkcWV3ZWYzcHVpZnFvZjNwbzRmcW4zNGY5MiJ9'
-      }).promise();
+      await TestModel()
+        .query({
+          offset: 'eyJwayI6InFkcWV3ZWYzcHVpZnFvZjNwbzRmcW4zNGY5MiJ9'
+        })
+        .promise();
 
       expect(queryStub.args[0][0]).toEqual({
         TableName: tableName,
@@ -997,10 +1096,12 @@ describe('Model', () => {
     }
 
     test('should return a base64 encoded offset value', async () => {
-      var data = await TestModel.query({
-        limit: 200,
-        offset: btoa(JSON.stringify({ 0: { id } }))
-      }).promise();
+      var data = await TestModel()
+        .query({
+          limit: 200,
+          offset: btoa(JSON.stringify({ 0: { id } }))
+        })
+        .promise();
 
       expect(isBase64(data && data.offset)).toBe(true);
     });
