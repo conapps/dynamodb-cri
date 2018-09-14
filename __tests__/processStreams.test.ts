@@ -43,7 +43,7 @@ var config: IDynamoDBCRIModelConfig = {
   gsik
 };
 
-var TestModel = DynamoDBCRI.create(config);
+var TestModel = DynamoDBCRI.createModel(config);
 
 describe('Model', () => {
   test('should be a function', () => {
@@ -113,7 +113,7 @@ describe('Model', () => {
         gsik
       };
 
-      var NewModel = DynamoDBCRI.create(config);
+      var NewModel = DynamoDBCRI.createModel(config);
 
       await DynamoDBCRI.hookDynamoDBStreams(
         [NewModel, TestModel],
