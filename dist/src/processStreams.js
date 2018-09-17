@@ -28,7 +28,7 @@ async function createIndexesItems(record, models) {
         throw new Error('No Model provided for this entity');
     }
     var body = buildBodyFromRecord(record);
-    return await model().putIndexItems(body);
+    return await model.putIndexItems(body);
 }
 async function updateIndexesItems(record, models) {
     var entity = lodash_1.get(record, 'dynamodb.Keys.sk.S').split('|')[1];
@@ -37,7 +37,7 @@ async function updateIndexesItems(record, models) {
         throw new Error('No Model provided for this entity');
     }
     var body = buildBodyFromRecord(record);
-    return await model().updateIndexesItems(body);
+    return await model.updateIndexesItems(body);
 }
 async function deleteIndexesItems(record, models) {
     var entity = lodash_1.get(record, 'dynamodb.Keys.sk.S').split('|')[1];
@@ -46,7 +46,7 @@ async function deleteIndexesItems(record, models) {
         throw new Error('No Model provided for this entity');
     }
     var id = lodash_1.get(record, 'dynamodb.Keys.pk.S');
-    return await model().deleteIndexItems({ id });
+    return await model.deleteIndexItems({ id });
 }
 function buildBodyFromRecord(record) {
     var newItem = lodash_1.get(record, 'dynamodb.NewImage');
@@ -54,7 +54,7 @@ function buildBodyFromRecord(record) {
 }
 function findModel(models, key) {
     var item = lodash_1.find(models, (elem) => {
-        return elem().entity === key;
+        return elem.entity === key;
     });
     return item !== undefined ? item : undefined;
 }

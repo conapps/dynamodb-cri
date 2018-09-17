@@ -35,11 +35,11 @@ describe('DynamoDBCRI', () => {
 
     describe('.create()', () => {
       test('should be a function', () => {
-        expect(typeof DynamoDBCRI.createModel).toEqual('function');
+        expect(typeof DynamoDBCRI.Model).toEqual('function');
       });
 
-      test('should return a function', () => {
-        expect(typeof DynamoDBCRI.createModel(config)).toEqual('function');
+      test('should return a Object', () => {
+        expect(typeof new DynamoDBCRI.Model(config)).toEqual('object');
       });
     });
   });

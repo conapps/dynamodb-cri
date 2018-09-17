@@ -17,19 +17,13 @@ export namespace DynamoDBCRI {
     globalConfig = Object.assign({}, globalConfig, options);
   }
 
-  export function createModel(config: IDynamoDBCRIModelConfig): () => IDynamoDBCRIModel {
-    class Model extends DynamoDBCRIModel {
-      constructor() {
-        super({ ...globalConfig, ...config });
-      }
+  export class Model extends DynamoDBCRIModel {
+    constructor(config: IDynamoDBCRIModelConfig) {
+      super({ ...globalConfig, ...config });
     }
-    return function(): IDynamoDBCRIModel {
-      return new Model();
-    };
   }
-
   export async function hookDynamoDBStreams(
-    models: Array<() => IDynamoDBCRIModel>,
+    models: Array<IDynamoDBCRIModel>,
     event: DynamoDBStreamEvent
   ) {
     try {
