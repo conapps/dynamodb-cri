@@ -2,6 +2,7 @@ import * as cuid from 'cuid';
 import { omit } from 'lodash';
 import { atob, btoa } from './utils';
 import { DynamoDB } from 'aws-sdk';
+import { globalConfig } from './index'
 import {
   IDynamoDBCRIModelConfig,
   IDynamoDBCRIModel,
@@ -19,49 +20,46 @@ import {
 } from './types';
 
 export class DynamoDBCRIModel implements IDynamoDBCRIModel {
-  documentClient: DynamoDB.DocumentClient;
+  
+  _config: IDynamoDBCRIModelConfig = {
+    trackDates: false,
+    trackIndexes: false,
+    indexName: 'ByGSIK',
+    entity:'',
+    gsik:'gsik'
+  };
 
-  tableName: string;
-
-  tenant: string;
-
-  indexName: string = 'byGSIK';
-
-  entity: string;
-
-  gsik: string;
-
-  indexes: IDynamoDBCRIIndexes[];
-
-  trackDates: boolean = false;
-
-  trackIndexes: boolean = false;
+  get config(): IDynamoDBCRIModelConfig {
+    return {...globalConfig, ...this._config}
+  }
 
   constructor(config: IDynamoDBCRIModelConfig) {
-    this.tableName = config.tableName;
-    this.documentClient = config.documentClient;
 
-    this.entity = config.entity;
-    this.gsik = config.gsik;
+    this._config.entity = config.entity;
+    this._config.gsik = config.gsik;
+
+    if (config.indexName !== undefined){
+      this._config.indexName= config.indexName
+    }
+
+    if (config.tableName !== undefined){
+      this._config.tableName = config.tableName
+    }
+
+    if (config.tenant !== undefined){
+      this._config.tenant = config.tenant
+    }
 
     if (config.indexes !== undefined) {
-      this.indexes = config.indexes;
-    }
-
-    if (config.indexName !== undefined) {
-      this.indexName = config.indexName;
-    }
-
-    if (config.tenant !== undefined) {
-      this.tenant = config.tenant;
+      this._config.indexes = config.indexes;
     }
 
     if (config.trackDates !== undefined) {
-      this.trackDates = config.trackDates;
+      this._config.trackDates = config.trackDates;
     }
 
     if (config.trackIndexes !== undefined) {
-      this.trackIndexes = config.trackIndexes;
+      this._config.trackIndexes = config.trackIndexes;
     }
   }
 
@@ -71,15 +69,9 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
    */
 
   createSecondaryKey(index?: string): IItem {
-    if (this.tenant !== undefined && this.tenant !== '') {
-      return index === undefined
-        ? { sk: this.tenant + '|' + this.entity }
-        : { sk: this.tenant + '|' + this.entity + '|' + index };
-    } else {
-      return index === undefined
-        ? { sk: this.entity }
-        : { sk: this.entity + '|' + index };
-    }
+    return index === undefined
+      ? { sk: `${this.config.tenant || ''}|${this.config.entity}` }
+      : { sk:  `${this.config.tenant ||''}|${this.config.entity}|${index}` };
   }
 
   /**
@@ -90,7 +82,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
    *
    */
   trackChanges(attributes: IDynamoDBCRIItem): IDynamoDBCRIModelTrack {
-    if (this.trackDates === false) return {} as IDynamoDBCRIModelTrack;
+    if (this.config.trackDates === false) return {} as IDynamoDBCRIModelTrack;
     var isoDate = new Date().toISOString();
     var isNew = attributes.createdAt === undefined;
     var result: IDynamoDBCRIModelTrack = {
@@ -114,7 +106,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
   }
 
   async putIndexItems(body: IItem): Promise<void> {
-    for (let index of this.indexes) {
+    for (let index of this.config.indexes) {
       var proyection = {};
 
       if (index.proyections !== undefined) {
@@ -130,11 +122,11 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       };
 
       var params: DynamoDB.DocumentClient.PutItemInput = {
-        TableName: this.tableName,
+        TableName: globalConfig.tableName,
         Item: item
       };
 
-      await this.documentClient.put(params).promise();
+      await globalConfig.documentClient.put(params).promise();
     }
   }
 
@@ -175,20 +167,20 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     var body: IItem = {
       pk: attributes.id || cuid(),
       ...this.createSecondaryKey(),
-      gk: attributes[this.gsik],
-      __v: this.gsik,
-      ...omit(attributes, ['id', this.gsik]),
+      gk: attributes[this.config.gsik],
+      __v: this.config.gsik,
+      ...omit(attributes, ['id', this.config.gsik]),
       ...track
     };
 
     var params: DynamoDB.DocumentClient.PutItemInput = {
-      TableName: this.tableName,
+      TableName: globalConfig.tableName,
       Item: body
     };
 
-    await this.documentClient.put(params).promise();
+    await globalConfig.documentClient.put(params).promise();
 
-    if (this.trackIndexes) {
+    if (this.config.trackIndexes) {
       await this.putIndexItems(body);
     }
 
@@ -205,14 +197,14 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
    * @param key primary key of elements
    */
   async deleteIndexItems(key: IDynamoDBKey): Promise<void> {
-    for (let index of this.indexes) {
+    for (let index of this.config.indexes) {
       var Key = {
         pk: key.id,
         ...this.createSecondaryKey(index.indexName)
       };
-      await this.documentClient
+      await globalConfig.documentClient
         .delete({
-          TableName: this.tableName,
+          TableName: globalConfig.tableName,
           Key
         })
         .promise();
@@ -220,9 +212,9 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
   }
 
   async delete(key: IDynamoDBKey): Promise<void> {
-    await this.documentClient
+    await globalConfig.documentClient
       .delete({
-        TableName: this.tableName,
+        TableName: globalConfig.tableName,
         Key: {
           pk: key.id,
           ...this.createSecondaryKey()
@@ -230,15 +222,15 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       })
       .promise();
 
-    if (this.trackIndexes) {
+    if (this.config.trackIndexes) {
       this.deleteIndexItems(key);
     }
   }
 
   async get(key: IDynamoDBKey): Promise<IDynamoDBCRIResponseItem> {
-    var data: any = await this.documentClient
+    var data: any = await globalConfig.documentClient
       .get({
-        TableName: this.tableName,
+        TableName: globalConfig.tableName,
         Key: {
           pk: key.id,
           ...this.createSecondaryKey(key.index)
@@ -252,7 +244,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
   private flattenIndexes(): string[] {
     var indexes: string[] = [];
 
-    this.indexes.forEach(index => {
+    this.config.indexes.forEach(index => {
       indexes.push(index.indexName);
       if (index.proyections !== undefined) {
         indexes.push(...index.proyections);
@@ -272,9 +264,9 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     if (this.needUpdateIndexes(body) === false) {
       return;
     }
-    var response = await this.documentClient
+    var response = await globalConfig.documentClient
       .get({
-        TableName: this.tableName,
+        TableName: globalConfig.tableName,
         Key: {
           pk: body.id || body.pk,
           ...this.createSecondaryKey()
@@ -290,21 +282,21 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       throw new Error(`The value of id can't be undefined`);
     }
 
-    if (this.trackDates === true)
+    if (this.config.trackDates === true)
       body = { ...body, ...this.trackChanges(body) };
 
-    await this.documentClient
+    await globalConfig.documentClient
       .update({
-        TableName: this.tableName,
+        TableName: globalConfig.tableName,
         Key: {
           pk: body.id,
-          sk: `${this.tenant}|${this.entity}`
+          ...this.createSecondaryKey()
         },
         ...this.createUpdateExpressionParams(body)
       })
       .promise();
 
-    if (this.trackIndexes) {
+    if (this.config.trackIndexes) {
       this.updateIndexesItems(body);
     }
 
@@ -345,8 +337,8 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       StartKey = this.createStartKey(options.offset, options.index);
 
     return {
-      TableName: this.tableName,
-      IndexName: this.indexName,
+      TableName: globalConfig.tableName,
+      IndexName: globalConfig.indexName,
       KeyConditionExpression: KeyCondition,
       ExpressionAttributeNames: AttributeNames,
       ExpressionAttributeValues: AttributeValues,
@@ -389,9 +381,9 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     var outputs = await Promise.all(
       items.map(i => i.pk).map(
         (pk: string): Promise<DynamoDB.DocumentClient.GetItemOutput> =>
-          this.documentClient
+          globalConfig.documentClient
             .get({
-              TableName: this.tableName,
+              TableName: globalConfig.tableName,
               Key: {
                 pk,
                 ...this.createSecondaryKey()
@@ -410,7 +402,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
 
     var params = this.createQueryParameters(options);
 
-    var data: any = await this.documentClient.query(params).promise();
+    var data: any = await globalConfig.documentClient.query(params).promise();
 
     var responseItems: IItem[] = data.Items;
 

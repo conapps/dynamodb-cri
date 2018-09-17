@@ -7,19 +7,25 @@ import {
 } from './types';
 import { processStreams } from './processStreams';
 
-var globalConfig: IDynamoDBCRIGlobalConfig = {};
+export var globalConfig: IDynamoDBCRIGlobalConfig = {};
 
 export namespace DynamoDBCRI {
-  export function getConfig() {
+  function getConfig(): IDynamoDBCRIGlobalConfig {
     return Object.assign({}, globalConfig);
   }
-  export function config(options: IDynamoDBCRIGlobalConfig): void {
-    globalConfig = Object.assign({}, globalConfig, options);
+  export function config(
+    options?: IDynamoDBCRIGlobalConfig
+  ): IDynamoDBCRIGlobalConfig {
+    if (options !== undefined) {
+      globalConfig = Object.assign({}, globalConfig, options);
+    }
+
+    return getConfig();
   }
 
   export class Model extends DynamoDBCRIModel {
     constructor(config: IDynamoDBCRIModelConfig) {
-      super({ ...globalConfig, ...config });
+      super({ ...config });
     }
   }
   export async function hookDynamoDBStreams(

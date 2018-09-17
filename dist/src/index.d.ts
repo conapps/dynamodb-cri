@@ -1,9 +1,9 @@
 import { DynamoDBCRIModel } from './model';
 import { DynamoDBStreamEvent } from 'aws-lambda';
 import { IDynamoDBCRIGlobalConfig, IDynamoDBCRIModelConfig, IDynamoDBCRIModel } from './types';
+export declare var globalConfig: IDynamoDBCRIGlobalConfig;
 export declare namespace DynamoDBCRI {
-    function getConfig(): IDynamoDBCRIGlobalConfig;
-    function config(options: IDynamoDBCRIGlobalConfig): void;
+    function config(options?: IDynamoDBCRIGlobalConfig): IDynamoDBCRIGlobalConfig;
     class Model extends DynamoDBCRIModel {
         constructor(config: IDynamoDBCRIModelConfig);
     }

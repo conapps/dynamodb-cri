@@ -1,4 +1,4 @@
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDB, config } from 'aws-sdk';
 
 export interface IDynamoDBCRIGlobalConfig {
   tableName?: string;
@@ -30,14 +30,7 @@ export interface IDynamoDBKey {
 }
 
 export interface IDynamoDBCRIModel {
-  entity: string;
-  tableName: string;
-  indexName: string;
-  tenant: string;
-  documentClient?: DynamoDB.DocumentClient;
-  indexes?: IDynamoDBCRIIndexes[];
-  trackDates?: boolean;
-  trackIndexes?: boolean;
+  _config: IDynamoDBCRIModelConfig;
   get(key: IDynamoDBKey): Promise<IDynamoDBCRIResponseItem>;
   delete(key: IDynamoDBKey): Promise<void>;
   create(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;

@@ -2,20 +2,22 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const model_1 = require("./model");
 const processStreams_1 = require("./processStreams");
-var globalConfig = {};
+exports.globalConfig = {};
 var DynamoDBCRI;
 (function (DynamoDBCRI) {
     function getConfig() {
-        return Object.assign({}, globalConfig);
+        return Object.assign({}, exports.globalConfig);
     }
-    DynamoDBCRI.getConfig = getConfig;
     function config(options) {
-        globalConfig = Object.assign({}, globalConfig, options);
+        if (options !== undefined) {
+            exports.globalConfig = Object.assign({}, exports.globalConfig, options);
+        }
+        return getConfig();
     }
     DynamoDBCRI.config = config;
     class Model extends model_1.DynamoDBCRIModel {
         constructor(config) {
-            super(Object.assign({}, globalConfig, config));
+            super(Object.assign({}, config));
         }
     }
     DynamoDBCRI.Model = Model;

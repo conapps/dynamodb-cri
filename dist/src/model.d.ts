@@ -1,15 +1,8 @@
 import { DynamoDB } from 'aws-sdk';
 import { IDynamoDBCRIModelConfig, IDynamoDBCRIModel, IItem, IDynamoDBCRIItem, IDynamoDBCRIModelTrack, IDynamoDBCRIIndexes, IDynamoDBKey, IDynamoDBCRIIndexOptions, IDynamoDBCRIResponseItem, IDynamoDBCRIResponseItems } from './types';
 export declare class DynamoDBCRIModel implements IDynamoDBCRIModel {
-    documentClient: DynamoDB.DocumentClient;
-    tableName: string;
-    tenant: string;
-    indexName: string;
-    entity: string;
-    gsik: string;
-    indexes: IDynamoDBCRIIndexes[];
-    trackDates: boolean;
-    trackIndexes: boolean;
+    _config: IDynamoDBCRIModelConfig;
+    readonly config: IDynamoDBCRIModelConfig;
     constructor(config: IDynamoDBCRIModelConfig);
     /**
      *  Creates secondary key sk with this form:  tenant|entity|index

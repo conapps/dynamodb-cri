@@ -113,12 +113,10 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.get` method');
       });
 
-      await TestModel.get({ id })
-        
-        .catch(error => {
-          expect(error).not.toBe(null);
-          expect(error.message).toBe('Error with `documentClient.get` method');
-        });
+      await TestModel.get({ id }).catch(error => {
+        expect(error).not.toBe(null);
+        expect(error.message).toBe('Error with `documentClient.get` method');
+      });
 
       try {
         await TestModel.get({ id });
@@ -172,14 +170,10 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.delete` method');
       });
 
-      await TestModel.delete({ id })
-        
-        .catch(error => {
-          expect(error).not.toBe(null);
-          expect(error.message).toBe(
-            'Error with `documentClient.delete` method'
-          );
-        });
+      await TestModel.delete({ id }).catch(error => {
+        expect(error).not.toBe(null);
+        expect(error.message).toBe('Error with `documentClient.delete` method');
+      });
 
       try {
         await TestModel.delete({ id });
@@ -322,7 +316,6 @@ describe('Model', () => {
 
     test('should return the created item', async () => {
       var data = await TestModel.create({ id, name });
-
       expect(data).toEqual({ item: { id, name } });
     });
 
@@ -392,12 +385,10 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.put` method');
       });
 
-      await TestModel.create({ id, name })
-        
-        .catch(error => {
-          expect(error).not.toBe(null);
-          expect(error.message).toBe('Error with `documentClient.put` method');
-        });
+      await TestModel.create({ id, name }).catch(error => {
+        expect(error).not.toBe(null);
+        expect(error.message).toBe('Error with `documentClient.put` method');
+      });
 
       try {
         await TestModel.create({ id, name });
@@ -485,12 +476,10 @@ describe('Model', () => {
     });
 
     test('should fail if the hash key is missing', async () => {
-      await TestModel.update({ name })
-        
-        .catch(error => {
-          expect(error).not.toBe(null);
-          expect(error.message).toBe("The value of id can't be undefined");
-        });
+      await TestModel.update({ name }).catch(error => {
+        expect(error).not.toBe(null);
+        expect(error.message).toBe("The value of id can't be undefined");
+      });
     });
 
     test('should construct the `UpdateExpression` param correctly', async () => {
@@ -636,12 +625,10 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.get` method');
       });
 
-      await TestModel.update({ id, name })
-        
-        .catch(error => {
-          expect(error).not.toBe(null);
-          expect(error.message).toBe('Error with `documentClient.get` method');
-        });
+      await TestModel.update({ id, name }).catch(error => {
+        expect(error).not.toBe(null);
+        expect(error.message).toBe('Error with `documentClient.get` method');
+      });
 
       try {
         await TestModel.update({ id, name });
@@ -658,12 +645,10 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.put` method');
       });
 
-      await TestModel.update({ id, name })
-        
-        .catch(error => {
-          expect(error).not.toBe(null);
-          expect(error.message).toBe('Error with `documentClient.put` method');
-        });
+      await TestModel.update({ id, name }).catch(error => {
+        expect(error).not.toBe(null);
+        expect(error.message).toBe('Error with `documentClient.put` method');
+      });
 
       try {
         await TestModel.update({ id, name });
@@ -680,14 +665,10 @@ describe('Model', () => {
         throw new Error('Error with `documentClient.update` method');
       });
 
-      await TestModel.update({ id, name })
-        
-        .catch(error => {
-          expect(error).not.toBe(null);
-          expect(error.message).toBe(
-            'Error with `documentClient.update` method'
-          );
-        });
+      await TestModel.update({ id, name }).catch(error => {
+        expect(error).not.toBe(null);
+        expect(error.message).toBe('Error with `documentClient.update` method');
+      });
 
       try {
         await TestModel.update({ id, name });
@@ -698,7 +679,7 @@ describe('Model', () => {
     });
   });
 
-  describe('#index()', () => {
+  describe('#query()', () => {
     var queryStub: sinon.SinonStub;
     var getStub: sinon.SinonStub;
 
@@ -769,22 +750,6 @@ describe('Model', () => {
 
       expect(queryStub.callCount).toBe(1);
       expect(getStub.callCount).toBe(1);
-    });
-
-    test('should query the table without `tenant` ', async () => {
-      var NoTentantModel = new DynamoDBCRI.Model({
-        ...config,
-        tenant: undefined
-      });
-      await NoTentantModel.query({});
-      expect(queryStub.args[0][0]).toEqual({
-        TableName: tableName,
-        IndexName: indexName,
-        KeyConditionExpression: '#sk = :sk',
-        ExpressionAttributeNames: { '#sk': 'sk' },
-        ExpressionAttributeValues: { ':sk': `${entity}` },
-        Limit: 100
-      });
     });
 
     test('should query only with the `secondary`', async () => {
