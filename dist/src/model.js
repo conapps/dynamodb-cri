@@ -9,7 +9,6 @@ class DynamoDBCRIModel {
         this._config = {
             trackDates: false,
             trackIndexes: false,
-            indexName: 'ByGSIK',
             entity: '',
             gsik: 'gsik'
         };
@@ -85,10 +84,10 @@ class DynamoDBCRIModel {
             }
             var item = Object.assign({ pk: body.pk || body.id }, this.createSecondaryKey(index.indexName), { gk: body[index.indexName], __v: index.indexName }, proyection);
             var params = {
-                TableName: index_1.globalConfig.tableName,
+                TableName: this.config.tableName,
                 Item: item
             };
-            await index_1.globalConfig.documentClient.put(params).promise();
+            await this.config.documentClient.put(params).promise();
         }
     }
     createUpdateExpressionParams(body) {
@@ -112,10 +111,10 @@ class DynamoDBCRIModel {
         var track = this.trackChanges(attributes);
         var body = Object.assign({ pk: attributes.id || cuid() }, this.createSecondaryKey(), { gk: attributes[this.config.gsik], __v: this.config.gsik }, lodash_1.omit(attributes, ['id', this.config.gsik]), track);
         var params = {
-            TableName: index_1.globalConfig.tableName,
+            TableName: this.config.tableName,
             Item: body
         };
-        await index_1.globalConfig.documentClient.put(params).promise();
+        await this.config.documentClient.put(params).promise();
         if (this.config.trackIndexes) {
             await this.putIndexItems(body);
         }
@@ -130,18 +129,18 @@ class DynamoDBCRIModel {
     async deleteIndexItems(key) {
         for (let index of this.config.indexes) {
             var Key = Object.assign({ pk: key.id }, this.createSecondaryKey(index.indexName));
-            await index_1.globalConfig.documentClient
+            await this.config.documentClient
                 .delete({
-                TableName: index_1.globalConfig.tableName,
+                TableName: this.config.tableName,
                 Key
             })
                 .promise();
         }
     }
     async delete(key) {
-        await index_1.globalConfig.documentClient
+        await this.config.documentClient
             .delete({
-            TableName: index_1.globalConfig.tableName,
+            TableName: this.config.tableName,
             Key: Object.assign({ pk: key.id }, this.createSecondaryKey())
         })
             .promise();
@@ -150,9 +149,9 @@ class DynamoDBCRIModel {
         }
     }
     async get(key) {
-        var data = await index_1.globalConfig.documentClient
+        var data = await this.config.documentClient
             .get({
-            TableName: index_1.globalConfig.tableName,
+            TableName: this.config.tableName,
             Key: Object.assign({ pk: key.id }, this.createSecondaryKey(key.index))
         })
             .promise();
@@ -177,9 +176,9 @@ class DynamoDBCRIModel {
         if (this.needUpdateIndexes(body) === false) {
             return;
         }
-        var response = await index_1.globalConfig.documentClient
+        var response = await this.config.documentClient
             .get({
-            TableName: index_1.globalConfig.tableName,
+            TableName: this.config.tableName,
             Key: Object.assign({ pk: body.id || body.pk }, this.createSecondaryKey())
         })
             .promise();
@@ -191,8 +190,8 @@ class DynamoDBCRIModel {
         }
         if (this.config.trackDates === true)
             body = Object.assign({}, body, this.trackChanges(body));
-        await index_1.globalConfig.documentClient
-            .update(Object.assign({ TableName: index_1.globalConfig.tableName, Key: Object.assign({ pk: body.id }, this.createSecondaryKey()) }, this.createUpdateExpressionParams(body)))
+        await this.config.documentClient
+            .update(Object.assign({ TableName: this.config.tableName, Key: Object.assign({ pk: body.id }, this.createSecondaryKey()) }, this.createUpdateExpressionParams(body)))
             .promise();
         if (this.config.trackIndexes) {
             this.updateIndexesItems(body);
@@ -218,7 +217,7 @@ class DynamoDBCRIModel {
             ScanIndexForward = { ScanIndexForward: options.scanIndexForward };
         if (options.offset !== undefined)
             StartKey = this.createStartKey(options.offset, options.index);
-        return Object.assign({ TableName: index_1.globalConfig.tableName, IndexName: index_1.globalConfig.indexName, KeyConditionExpression: KeyCondition, ExpressionAttributeNames: AttributeNames, ExpressionAttributeValues: AttributeValues, Limit: options.limit }, StartKey, ScanIndexForward);
+        return Object.assign({ TableName: this.config.tableName, IndexName: this.config.indexName, KeyConditionExpression: KeyCondition, ExpressionAttributeNames: AttributeNames, ExpressionAttributeValues: AttributeValues, Limit: options.limit }, StartKey, ScanIndexForward);
     }
     /**
      * Omits the GSIkeys from an item
@@ -248,9 +247,9 @@ class DynamoDBCRIModel {
      * @param index The index to search
      */
     async pksToEntities(items) {
-        var outputs = await Promise.all(items.map(i => i.pk).map((pk) => index_1.globalConfig.documentClient
+        var outputs = await Promise.all(items.map(i => i.pk).map((pk) => this.config.documentClient
             .get({
-            TableName: index_1.globalConfig.tableName,
+            TableName: this.config.tableName,
             Key: Object.assign({ pk }, this.createSecondaryKey())
         })
             .promise()));
@@ -259,7 +258,7 @@ class DynamoDBCRIModel {
     async query(options) {
         options = Object.assign({ limit: 100 }, options);
         var params = this.createQueryParameters(options);
-        var data = await index_1.globalConfig.documentClient.query(params).promise();
+        var data = await this.config.documentClient.query(params).promise();
         var responseItems = data.Items;
         if (options.unwrapIndexItems) {
             responseItems = await this.pksToEntities(data.Items);
