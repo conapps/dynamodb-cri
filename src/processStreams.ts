@@ -87,7 +87,7 @@ function findModel(
   key: string
 ): IDynamoDBCRIModel {
   var item = find(models, (elem: IDynamoDBCRIModel) => {
-    return elem.entity === key;
+    return elem._config.entity === key;
   });
 
   return item !== undefined ? item : undefined;

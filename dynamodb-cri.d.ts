@@ -27,14 +27,7 @@ export interface IDynamoDBKey {
   [key: string]: string;
 }
 export interface IDynamoDBCRIModel {
-  entity: string;
-  tableName: string;
-  indexName: string;
-  tenant: string;
-  documentClient?: DynamoDB.DocumentClient;
-  indexes?: IDynamoDBCRIIndexes[];
-  trackDates?: boolean;
-  trackIndexes?: boolean;
+  _config: IDynamoDBCRIModelConfig
   get(key: IDynamoDBKey): Promise<IDynamoDBCRIResponseItem>;
   delete(key: IDynamoDBKey): Promise<void>;
   create(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
@@ -96,8 +89,8 @@ export interface IUpdateExpressionAttributes {
 }
 
 export declare namespace DynamoDBCRI {
-  export function getConfig(): IDynamoDBCRIGlobalConfig;
-  export function config(options: IDynamoDBCRIGlobalConfig): void;
+  function getConfig(): IDynamoDBCRIGlobalConfig;
+  export function config(options?: IDynamoDBCRIGlobalConfig): IDynamoDBCRIGlobalConfig;
   export class Model extends DynamoDBCRIModel {}
   export function hookDynamoDBStreams(
     models: IDynamoDBCRIModel[],
@@ -117,15 +110,7 @@ export declare function btoa(string: string): string;
 export declare function atob(string: string): string;
 
 export declare class DynamoDBCRIModel implements IDynamoDBCRIModel {
-  documentClient: DynamoDB.DocumentClient;
-  tableName: string;
-  tenant: string;
-  indexName: string;
-  entity: string;
-  gsik: string;
-  indexes: IDynamoDBCRIIndexes[];
-  trackDates: boolean;
-  trackIndexes: boolean;
+  _config: IDynamoDBCRIModelConfig
   constructor(config: IDynamoDBCRIModelConfig);
   private handleError;
   /**

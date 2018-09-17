@@ -11,9 +11,9 @@ describe('DynamoDBCRI', () => {
     });
 
     test('should configure the DynamoDBCRI options', () => {
-      expect(DynamoDBCRI.getConfig().indexName).toBe(undefined);
-      expect(DynamoDBCRI.getConfig().tableName).toBe(undefined);
-      expect(DynamoDBCRI.getConfig().tenant).toBe(undefined);
+      expect(DynamoDBCRI.config().indexName).toBe(undefined);
+      expect(DynamoDBCRI.config().tableName).toBe(undefined);
+      expect(DynamoDBCRI.config().tenant).toBe(undefined);
       var tenant = 'SomeTenant';
       var table = 'SomeTable';
       var index = 'SomeIndex';
@@ -22,9 +22,9 @@ describe('DynamoDBCRI', () => {
         indexName: 'SomeIndex',
         tenant: 'SomeTenant'
       });
-      expect(DynamoDBCRI.getConfig().tableName).toBe(table);
-      expect(DynamoDBCRI.getConfig().indexName).toBe(index);
-      expect(DynamoDBCRI.getConfig().tenant).toBe(tenant);
+      expect(DynamoDBCRI.config().tableName).toBe(table);
+      expect(DynamoDBCRI.config().indexName).toBe(index);
+      expect(DynamoDBCRI.config().tenant).toBe(tenant);
     });
 
     var config: IDynamoDBCRIModelConfig = {

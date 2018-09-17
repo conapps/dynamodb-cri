@@ -25,14 +25,7 @@ export interface IDynamoDBKey {
     [key: string]: string;
 }
 export interface IDynamoDBCRIModel {
-    entity: string;
-    tableName: string;
-    indexName: string;
-    tenant: string;
-    documentClient?: DynamoDB.DocumentClient;
-    indexes?: IDynamoDBCRIIndexes[];
-    trackDates?: boolean;
-    trackIndexes?: boolean;
+    _config: IDynamoDBCRIModelConfig;
     get(key: IDynamoDBKey): Promise<IDynamoDBCRIResponseItem>;
     delete(key: IDynamoDBKey): Promise<void>;
     create(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;

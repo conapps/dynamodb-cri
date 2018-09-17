@@ -54,7 +54,7 @@ function buildBodyFromRecord(record) {
 }
 function findModel(models, key) {
     var item = lodash_1.find(models, (elem) => {
-        return elem.entity === key;
+        return elem._config.entity === key;
     });
     return item !== undefined ? item : undefined;
 }
