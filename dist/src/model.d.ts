@@ -11,9 +11,6 @@ export declare class DynamoDBCRIModel implements IDynamoDBCRIModel {
     trackDates: boolean;
     trackIndexes: boolean;
     constructor(config: IDynamoDBCRIModelConfig);
-    private call;
-    promise(): Promise<IDynamoDBCRIResponseItem | IDynamoDBCRIResponseItems | void>;
-    private handleError;
     /**
      *  Creates secondary key sk with this form:  tenant|entity|index
      * @param index index parameter for sk conformation.
@@ -32,21 +29,21 @@ export declare class DynamoDBCRIModel implements IDynamoDBCRIModel {
      * @param index Index to proyect
      * @param item  Item with attributes to proyect
      */
-    private proyectIndexes;
+    proyectIndexes(index: IDynamoDBCRIIndexes, item: IItem): IItem;
     putIndexItems(body: IItem): Promise<void>;
     private createUpdateExpressionParams;
-    create(attributes: IDynamoDBCRIItem): IDynamoDBCRIModel;
+    create(attributes: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
     /**
      * Deletes the elements created by the idnexes
      * @param key primary key of elements
      */
     deleteIndexItems(key: IDynamoDBKey): Promise<void>;
-    delete(key: IDynamoDBKey): IDynamoDBCRIModel;
-    get(key: IDynamoDBKey): IDynamoDBCRIModel;
+    delete(key: IDynamoDBKey): Promise<void>;
+    get(key: IDynamoDBKey): Promise<IDynamoDBCRIResponseItem>;
     private flattenIndexes;
     private needUpdateIndexes;
     updateIndexesItems(body: IDynamoDBCRIItem | IItem): Promise<void>;
-    update(body: IDynamoDBCRIItem): IDynamoDBCRIModel;
+    update(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
     private createStartKey;
     private createQueryParameters;
     /**
@@ -65,6 +62,6 @@ export declare class DynamoDBCRIModel implements IDynamoDBCRIModel {
      * @param items The items to transform
      * @param index The index to search
      */
-    private pksToEntities;
-    query(options: IDynamoDBCRIIndexOptions): IDynamoDBCRIModel;
+    pksToEntities<T>(items: IItem[]): Promise<DynamoDB.DocumentClient.AttributeMap[]>;
+    query(options: IDynamoDBCRIIndexOptions): Promise<IDynamoDBCRIResponseItems>;
 }

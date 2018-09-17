@@ -13,17 +13,12 @@ var DynamoDBCRI;
         globalConfig = Object.assign({}, globalConfig, options);
     }
     DynamoDBCRI.config = config;
-    function createModel(config) {
-        class Model extends model_1.DynamoDBCRIModel {
-            constructor() {
-                super(Object.assign({}, globalConfig, config));
-            }
+    class Model extends model_1.DynamoDBCRIModel {
+        constructor(config) {
+            super(Object.assign({}, globalConfig, config));
         }
-        return function () {
-            return new Model();
-        };
     }
-    DynamoDBCRI.createModel = createModel;
+    DynamoDBCRI.Model = Model;
     async function hookDynamoDBStreams(models, event) {
         try {
             await processStreams_1.processStreams(models, event);

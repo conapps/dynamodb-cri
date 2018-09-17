@@ -1,4 +1,4 @@
-import { DynamoDB } from "aws-sdk";
+import { DynamoDB } from 'aws-sdk';
 export interface IDynamoDBCRIGlobalConfig {
     tableName?: string;
     indexName?: string;
@@ -33,14 +33,13 @@ export interface IDynamoDBCRIModel {
     indexes?: IDynamoDBCRIIndexes[];
     trackDates?: boolean;
     trackIndexes?: boolean;
-    promise(): Promise<IItem | void>;
-    get(key: IDynamoDBKey): IDynamoDBCRIModel;
-    delete(key: IDynamoDBKey): IDynamoDBCRIModel;
-    create(body: IDynamoDBCRIItem): IDynamoDBCRIModel;
-    update(body: IDynamoDBCRIItem): IDynamoDBCRIModel;
-    query(options?: IDynamoDBCRIIndexOptions): IDynamoDBCRIModel;
-    putIndexItems(body: IItem): void;
-    deleteIndexItems(key: IDynamoDBKey): void;
+    get(key: IDynamoDBKey): Promise<IDynamoDBCRIResponseItem>;
+    delete(key: IDynamoDBKey): Promise<void>;
+    create(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
+    update(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
+    query(options?: IDynamoDBCRIIndexOptions): Promise<IDynamoDBCRIResponseItems>;
+    putIndexItems(body: IItem): Promise<void>;
+    deleteIndexItems(key: IDynamoDBKey): Promise<void>;
     updateIndexesItems(body: IDynamoDBCRIItem | IItem): Promise<void>;
 }
 export interface IDynamoDBCRIKeyCondition {
@@ -67,6 +66,7 @@ export interface IGSIKItem {
 }
 export interface IDynamoDBCRIResponseItems {
     items: IItem[];
+    [key: string]: any;
 }
 export interface IDynamoDBCRIGetOptions {
     id: string;

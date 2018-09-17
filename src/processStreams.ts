@@ -4,7 +4,7 @@ import { IDynamoDBCRIModel, IItem } from './types';
 import { get, find } from 'lodash';
 
 export async function processStreams(
-  models: Array<() => IDynamoDBCRIModel>,
+  models: Array<IDynamoDBCRIModel>,
   event: DynamoDBStreamEvent
 ) {
   for (let record of event.Records) {
@@ -27,7 +27,7 @@ export async function processStreams(
 
 async function createIndexesItems(
   record: DynamoDBRecord,
-  models: Array<() => IDynamoDBCRIModel>
+  models: Array<IDynamoDBCRIModel>
 ) {
   var entity = get(record, 'dynamodb.Keys.sk.S').split('|')[1];
 
@@ -39,12 +39,12 @@ async function createIndexesItems(
 
   var body = buildBodyFromRecord(record);
 
-  return await model().putIndexItems(body);
+  return await model.putIndexItems(body);
 }
 
 async function updateIndexesItems(
   record: DynamoDBRecord,
-  models: Array<() => IDynamoDBCRIModel>
+  models: Array<IDynamoDBCRIModel>
 ) {
   var entity = get(record, 'dynamodb.Keys.sk.S').split('|')[1];
 
@@ -56,12 +56,12 @@ async function updateIndexesItems(
 
   var body = buildBodyFromRecord(record);
 
-  return await model().updateIndexesItems(body);
+  return await model.updateIndexesItems(body);
 }
 
 async function deleteIndexesItems(
   record: DynamoDBRecord,
-  models: Array<() => IDynamoDBCRIModel>
+  models: Array<IDynamoDBCRIModel>
 ) {
   var entity = get(record, 'dynamodb.Keys.sk.S').split('|')[1];
 
@@ -73,7 +73,7 @@ async function deleteIndexesItems(
 
   var id = get(record, 'dynamodb.Keys.pk.S');
 
-  return await model().deleteIndexItems({ id });
+  return await model.deleteIndexItems({ id });
 }
 
 function buildBodyFromRecord(record: DynamoDBRecord): IItem {
@@ -83,11 +83,11 @@ function buildBodyFromRecord(record: DynamoDBRecord): IItem {
 }
 
 function findModel(
-  models: Array<() => IDynamoDBCRIModel>,
+  models: Array<IDynamoDBCRIModel>,
   key: string
-): () => IDynamoDBCRIModel {
-  var item = find(models, (elem: () => IDynamoDBCRIModel) => {
-    return elem().entity === key;
+): IDynamoDBCRIModel {
+  var item = find(models, (elem: IDynamoDBCRIModel) => {
+    return elem.entity === key;
   });
 
   return item !== undefined ? item : undefined;
