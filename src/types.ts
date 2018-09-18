@@ -1,4 +1,4 @@
-import { DynamoDB, config } from 'aws-sdk';
+import { DynamoDB } from 'aws-sdk';
 
 export interface IDynamoDBCRIGlobalConfig {
   tableName?: string;

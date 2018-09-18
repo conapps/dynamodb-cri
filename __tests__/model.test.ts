@@ -64,7 +64,10 @@ describe('Model', () => {
     beforeEach(() => {
       getStub = sinon.stub(db, 'get');
       getStub.returns({
-        promise: () => Promise.resolve({ Item: { id, name } })
+        promise: () =>
+          Promise.resolve({
+            Item: { pk: id, gk: name, __v: 'name', sk: `${tenant}|${entity}` }
+          })
       });
     });
 
@@ -103,6 +106,15 @@ describe('Model', () => {
           pk: id,
           sk: `${tenant}|${entity}|mail`
         }
+      });
+    });
+
+    test('should return the correct item', async () => {
+      var data = await TestModel.get({ id, index: 'mail' });
+
+      expect(data.item).toEqual({
+        id,
+        name
       });
     });
 
@@ -455,9 +467,9 @@ describe('Model', () => {
           pk: id,
           sk: `${tenant}|${entity}`
         },
-        UpdateExpression: 'SET #name = :name',
+        UpdateExpression: 'SET #gk = :name',
         ExpressionAttributeNames: {
-          '#name': 'name'
+          '#gk': 'gk'
         },
         ExpressionAttributeValues: {
           ':name': name
@@ -487,7 +499,7 @@ describe('Model', () => {
 
       var params = updateStub.args[0][0];
       expect(params.UpdateExpression).toEqual(
-        'SET #name = :name, #email = :email'
+        'SET #gk = :name, #email = :email'
       );
     });
 
@@ -496,7 +508,7 @@ describe('Model', () => {
 
       var params = updateStub.args[0][0];
       expect(params.ExpressionAttributeNames).toEqual({
-        '#name': 'name',
+        '#gk': 'gk',
         '#email': 'email'
       });
     });
@@ -536,9 +548,9 @@ describe('Model', () => {
           pk: id,
           sk: `${tenant}|${entity}`
         },
-        UpdateExpression: 'SET #name = :name',
+        UpdateExpression: 'SET #gk = :name',
         ExpressionAttributeNames: {
-          '#name': 'name'
+          '#gk': 'gk'
         },
         ExpressionAttributeValues: {
           ':name': name
@@ -575,9 +587,9 @@ describe('Model', () => {
           sk: `${tenant}|${entity}`
         },
         UpdateExpression:
-          'SET #name = :name, #email = :email, #document = :document',
+          'SET #gk = :name, #email = :email, #document = :document',
         ExpressionAttributeNames: {
-          '#name': 'name',
+          '#gk': 'gk',
           '#document': 'document',
           '#email': 'email'
         },

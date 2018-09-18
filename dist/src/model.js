@@ -94,9 +94,16 @@ class DynamoDBCRIModel {
         body = lodash_1.omit(body, ['id']);
         var expressions = [], attributeNames = {}, attributeValues = {};
         for (var key in body) {
-            expressions.push(`#${key} = :${key}`);
-            attributeNames[`#${key}`] = key;
-            attributeValues[`:${key}`] = body[key];
+            if (key === this.config.gsik) {
+                expressions.push(`#gk = :${key}`);
+                attributeNames[`#gk`] = 'gk';
+                attributeValues[`:${key}`] = body[key];
+            }
+            else {
+                expressions.push(`#${key} = :${key}`);
+                attributeNames[`#${key}`] = key;
+                attributeValues[`:${key}`] = body[key];
+            }
         }
         if (expressions.length === 0)
             throw new Error(`Can't construct UpdateExpression from the body`);
@@ -141,7 +148,7 @@ class DynamoDBCRIModel {
         await this.config.documentClient
             .delete({
             TableName: this.config.tableName,
-            Key: Object.assign({ pk: key.id }, this.createSecondaryKey())
+            Key: Object.assign({ pk: key.id }, this.createSecondaryKey(key.index))
         })
             .promise();
         if (this.config.trackIndexes) {
@@ -155,7 +162,7 @@ class DynamoDBCRIModel {
             Key: Object.assign({ pk: key.id }, this.createSecondaryKey(key.index))
         })
             .promise();
-        return data.Item;
+        return { item: this.unwrapGSIK(data.Item) };
     }
     flattenIndexes() {
         var indexes = [];

@@ -139,9 +139,16 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       attributeValues: IExpressionAttributeValues = {};
 
     for (var key in body) {
-      expressions.push(`#${key} = :${key}`);
-      attributeNames[`#${key}`] = key;
-      attributeValues[`:${key}`] = body[key];
+      if (key===this.config.gsik){
+        expressions.push(`#gk = :${key}`);
+        attributeNames[`#gk`] = 'gk';
+        attributeValues[`:${key}`] = body[key];
+      } else {
+        expressions.push(`#${key} = :${key}`);
+        attributeNames[`#${key}`] = key;
+        attributeValues[`:${key}`] = body[key];
+      }
+     
     }
 
     if (expressions.length === 0)
@@ -216,7 +223,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
         TableName: this.config.tableName,
         Key: {
           pk: key.id,
-          ...this.createSecondaryKey()
+          ...this.createSecondaryKey(key.index)
         }
       })
       .promise();
@@ -237,7 +244,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       })
       .promise();
 
-    return data.Item;
+    return  { item: this.unwrapGSIK(data.Item) };
   }
 
   private flattenIndexes(): string[] {
