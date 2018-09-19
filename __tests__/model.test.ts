@@ -849,7 +849,7 @@ describe('Model', () => {
             })
         };
       });
-      var data: any = await TestModel.query({ index: document });
+      var data: any = await TestModel.query({ index: 'document' });
 
       expect(data).toEqual({
         count: 1,
@@ -919,6 +919,30 @@ describe('Model', () => {
           pk: id,
           sk: `${tenant}|${entity}`
         }
+      });
+    });
+
+    test('should convert the offset from base64 to a DynamoDBKey when tenant is not undefined', async () => {
+      await TestModel.query({
+        filter: {
+          expression: '#age between :first and :second',
+          values: [{ ':first': '18' }, { ':second': '28' }],
+          names: [{ '#age': 'age' }]
+        }
+      });
+
+      expect(queryStub.args[0][0]).toEqual({
+        TableName: tableName,
+        IndexName: indexName,
+        KeyConditionExpression: '#sk = :sk',
+        FilterExpression: '#age between :first and :second',
+        ExpressionAttributeNames: { '#sk': 'sk', '#age': 'age' },
+        ExpressionAttributeValues: {
+          ':sk': `${tenant}|${entity}`,
+          ':first': '18',
+          ':second': '28'
+        },
+        Limit: 100
       });
     });
 

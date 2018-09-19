@@ -18,6 +18,7 @@ import {
   IDynamoDBCRIResponseItems
 } from './types';
 import { globalConfig } from './index';
+import { AttributeValue } from 'aws-lambda';
 
 export class DynamoDBCRIModel implements IDynamoDBCRIModel {
   
@@ -322,6 +323,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     options: IDynamoDBCRIIndexOptions
   ): DynamoDB.DocumentClient.QueryInput {
     var KeyCondition: string,
+      Filter: string,
       AttributeValues: IExpressionAttributeValues = {},
       AttributeNames: IExpressionAttributeNames = {},
       ScanIndexForward: IItem = {},
@@ -336,6 +338,23 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       AttributeNames['#key'] = 'gk';
       KeyCondition = `${KeyCondition} and ${options.keyCondition.expression}`;
     }
+
+    if (options.filter !== undefined){
+      Filter = options.filter.expression
+      options.filter.values.forEach((value: IItem) => {
+        AttributeValues = {
+          ...value,
+          ...AttributeValues
+        }
+      })
+      options.filter.names.forEach((name: IItem) => {
+       AttributeNames = {
+         ...name,
+         ...AttributeNames
+       }
+      })
+    }
+
     if (options.scanIndexForward !== undefined)
       ScanIndexForward = { ScanIndexForward: options.scanIndexForward };
 
@@ -346,6 +365,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       TableName: this.config.tableName,
       IndexName: this.config.indexName,
       KeyConditionExpression: KeyCondition,
+      FilterExpression: Filter,
       ExpressionAttributeNames: AttributeNames,
       ExpressionAttributeValues: AttributeValues,
       Limit: options.limit,
