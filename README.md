@@ -119,10 +119,10 @@ If you have an index for store with the name projected:
 
 ```json
 {
-    "pk": "cccccecewdcowmcw234fcw"
-    "sk": "tenant|employee|store"
-    "gk": "casofqeonfqowefd"
-    "__v": "storeId"
+    "pk": "cccccecewdcowmcw234fcw",
+    "sk": "tenant|employee|store",
+    "gk": "casofqeonfqowefd",
+    "__v": "storeId",
     "__p": "{'storeName': 'SueprStore'}"
 }
 ```
