@@ -52,6 +52,7 @@ export interface IDynamoDBCRIIndexOptions {
   index?: string;
   unwrapIndexItems?: boolean;
   limit?: number;
+  filter?: IItem;
   scanIndexForward?: boolean;
 }
 
