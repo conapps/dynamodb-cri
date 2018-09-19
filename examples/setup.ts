@@ -60,3 +60,9 @@ export async function createTable() {
 
   console.log(JSON.stringify(result, null, 2));
 }
+
+async function create() {
+  await createTable();
+}
+
+create();

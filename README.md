@@ -55,22 +55,23 @@ So now that we have a view of what the design pattern is, here are the details o
   - ```json
     // For the main ROW
     {
-        pk: "string",
-        sk: "string",
-        gk: "any",
-        __v: "string",
-        ...attributes
+        "pk": "string",
+        "sk": "string",
+        "gk": "any",
+        "__v": "string",
+        "attribute1": "any",
+        "attribute2": "any"
     }
     ```
 
   - ```
     // For the extended ROWs
     {
-        pk: "string",
-        sk: "string",
-        gk: "any",
-        __v: "string",
-        __p: "Object"
+        "pk": "string",
+        "sk": "string",
+        "gk": "any",
+        "__v": "string",
+        "__p": "Object"
     }
     ```
 
@@ -86,12 +87,12 @@ This is how the library store data behind the scenes in Dynamo, but you don't ha
 
 ```json
 {
-    id: "cccccecewdcowmcw234fcw",
-    name: "Joe Poe",
-    email: "jpoel@mial.com",
-    document: "123.231.2312",
-    storeId: "casofqeonfqowefd",
-    storeName: "SuperStore"
+    "id": "cccccecewdcowmcw234fcw",
+    "name": "Joe Poe",
+    "email": "jpoel@mial.com",
+    "document": "123.231.2312",
+    "storeId": "casofqeonfqowefd",
+    "storeName": "SuperStore"
 }
 ```
 
@@ -101,14 +102,14 @@ And the library will put in dynamo as follows:
 
 ```json
 {
-    pk:"cccccecewdcowmcw234fcw",
-    sk: "tenant|employee",
-    gk: "Joe Poe",
-    __v: "name",
-    email: "jpoel@mial.com",
-    document: "123.231.2312",
-    storeId: "casofqeonfqowefd",
-    storeName: "SuperStore"
+    "pk":"cccccecewdcowmcw234fcw",
+    "sk": "tenant|employee",
+    "gk": "Joe Poe",
+    "__v": "name",
+    "email": "jpoel@mial.com",
+    "document": "123.231.2312",
+    "storeId": "casofqeonfqowefd",
+    "storeName": "SuperStore"
 }
 ```
 
@@ -118,11 +119,11 @@ If you have an index for store with the name projected:
 
 ```json
 {
-    pk: "cccccecewdcowmcw234fcw"
-    sk: "tenant|employee|store"
-    gk: "casofqeonfqowefd"
-    __v: "storeId"
-    __p: "{'storeName': 'SueprStore'}"
+    "pk": "cccccecewdcowmcw234fcw"
+    "sk": "tenant|employee|store"
+    "gk": "casofqeonfqowefd"
+    "__v": "storeId"
+    "__p": "{'storeName': 'SueprStore'}"
 }
 ```
 
