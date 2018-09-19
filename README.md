@@ -4,20 +4,18 @@
 
 ## Introduction
 
-There are many advanced design patterns to work with DynamoDB  and not all of them are easy to implement using the AWS JavaScript SDK  that provides access to DynamoDB.
+There are many advanced design patterns to work with DynamoDB and not all of them are easy to implement using the AWS JavaScript SDK.
 
-DynamoDB-CRI library takes this into account and chooses one of the many advance design patterns and uses the best practices principles to build all its functionalities, allowing the user to have easy access and maintainability of the schema.
+DynamoDB-CRI takes this into consideration by implementing one of the many advanced patterns and best practices detailed on the DynamoDB documentation site. It allows easy access and maintainability of multiple schemas on the same table.
 
-The main concepts that were used to create the access pattern to the database was the [sort-key](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-sort-keys.html) and global secondary index design. Specifically we used[ overloading of GSI ](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-gsi-overloading.html). 
+The access pattern used to interact with DynamoDB through this library is called [ GSI overloading ](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-gsi-overloading.html). It uses a Global Secondary Index spanning the [sort-key](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-sort-keys.html) and a special attribute identified as `data`.
 
-With a good design in the sort-key you can accomplish these two benefits:
+By crafting the sort-key in a specific way we obtain the following benefits:
 
 - Gather related information together in one place in order to query efficiently. 
 - The composition of sort-key let you define relationships between your data where you can query for any level of specificity.
 
-When we talk about GSI overloading, we are saying that in Dynamo a table can hold many different types of data items at one time. In addition, the same attribute in different items can contain entirely different types of information. 
-
-Mixing these two concepts is that the design pattern implemented for this library was born.
+When we talk about GSI overloading, we are saying that a Dynamo table can hold different types of items at once. Plus, the same attributes may exist on different items and can contain entirely different types of information. 
 
 Lets look at an example of top level schema you can accomplish with our library:
 
@@ -32,40 +30,41 @@ Lets look at an example of top level schema you can accomplish with our library:
 
 
 
-So here we have three entities, an employee, a job and a store. Each of the entities have a main row where where you have all the information about the entities. There are also additional rows with duplicate information about these entities that we will call indexes.
+So here we have three entities, an employee, a job and a store. Each of the entities have a main row where where you have all the information about each. There are also additional rows with duplicate information about these entities that we will call indexes.
 
-In this example we use the benefits of defining a good sort-key schema in order to define what's the information that is present in each row.  We have prefixed a tenant, after that comes the entity and when useful we have a index referring to the data why we're gonna be able to do a query or want to store information about.
+In this example we use the sort-kwy to define what entity is defined at each row, and the tenant who owns it. Some sort-keys are suffixed with the name of one of the attributes store on the main entity row. This are the indexes. They allow us to run complex queries over the entities without having to instantiate more than one GSI.
 
-Also, we have used the GSI overloading because  each gsik have a different data type. 
+Every row includes a `data` attribute but it represent a different type of value for each item on the table. For entities it represents the value most likely to be queried; and on indexes, they include the same data stored at the entity attribute referenced by the index name. For example: the `data` attribute of the `email` index row of the `employee` entity, contains the same information stored on the `email` attribute of the same `employee`.
 
-Using this schema some of the benefits are:
+Using this key schema we can:
 
-- Look up an employee by email in the global secondary index, by searching on the `email` attribute value.
-- Use the global secondary index to find all employees working in a particular store by searching on `tenant|employee|store`
-- Build relationships between the three entities and searching them as easy as doing one query to the DB.
+- Look up an employee by email in the global secondary index, by searching over the `email` index.
+- Use the global secondary index to find all employees working in a particular store by searching over the `store` index.
+- Build relationships between the three entities.
+- Search entities related to others.
 
 ## Implementation
 
-So now that we have a view of what the design pattern is, here are the details of implementation.
+So now that we have a view of what the design pattern is, here are implementation details.
 
-- The schema in the DB is the following:
-
-  ​	
+- The schema for each type of item on the table are:
 
   - ```json
-    // For the main ROW
+    // For the entities
     {
         "pk": "string",
         "sk": "string",
         "gk": "any",
         "__v": "string",
         "attribute1": "any",
-        "attribute2": "any"
+        "attribute2": "any",
+        // ...
+        "attributeN": "any"
     }
     ```
 
-  - ```
-    // For the extended ROWs
+  - ```json
+    // For the indexes
     {
         "pk": "string",
         "sk": "string",
@@ -75,15 +74,15 @@ So now that we have a view of what the design pattern is, here are the details o
     }
     ```
 
+- **pk**: Is the partition-key, defined as a string. 
+- **sk**: Is the sort-key composed as `tenant|entity` for entities, or `tenant|entity|index` for indexes.
+- **gk**: Is the global secondary index, it can be anything you want, as long as its stored as text.
+- **__v**: Key reference of the value stored at the `gk` value. Ex: `email`.
+- **__p**: For the indexes, instead of having many attributes, `__p` includes a projection of some of the attributes stored on its corresponding index.
 
+This is how the library store data behind the scenes in Dynamo, but you don't have to be aware of it because it is abstracted from yoy by the library. 
 
-- **pk**: Is the partition-key, in our case we defined as a string 
-- **sk**: Is the sort-key composed by `tenant|entity` or `tenant|entity|index`
-- **gk**: Is the global secondary index, it can be anything you want.
-- **__v**: Reference which attribute is in the gsik
-- **__p**: For the extended rows, instead of having many attributes, `__p` is the projection of the attributes.
-
-This is how the library store data behind the scenes in Dynamo, but you don't have to be aware of it because it abstracts you from this complexity.  You will only have to put an object as this example:
+On the developer side, you'll manipulate items like this:
 
 ```json
 {
@@ -96,9 +95,7 @@ This is how the library store data behind the scenes in Dynamo, but you don't ha
 }
 ```
 
-
-
-And the library will put in dynamo as follows:
+And the library will put this item in the DynamoDB table:
 
 ```json
 {
@@ -113,9 +110,7 @@ And the library will put in dynamo as follows:
 }
 ```
 
-
-
-If you have an index for store with the name projected:
+If you have an index over the `store` attribute with the `name` projected onto it, the library will also save this item:
 
 ```json
 {
@@ -127,20 +122,18 @@ If you have an index for store with the name projected:
 }
 ```
 
+One of the complexities introduced by this pattern is maintaining the data store on the indexes up to date. In order to mitigate this the library provides methods to update the indexes whenever an entity gets updated. You just have to worry about using the CRUD methods for the main entities and the library updates the indexes by itself.
 
+The library also provides a method to keep the indexes updated, decoupled from the CRUD methods. It does it by consuming the table's stream inside a Lambda function.
 
-One of the complexity of having this structure is having the data up to date in all the rows. In order to mitigate this the library provides methods to keep up to date the rows only by updating the main rows of the schema. You just have to worry about doing the CRUD methods for the main entities and the library updates the index rows by itself.
+So, this library aims to help you take advantage of this access pattern by providing a framework that provides:
 
-We also we provide a method to perform the index update actions decoupled from the basic functions. This method is for those who work with lambda functions. Simply by adding this function to a lambda function the library will take care of keeping all the index information up to date in a decoupled way.
-
-So, this library aims to help you build this design pattern by providing a framework that provides:
-
-- A simplified way to implement an advanced design pattern.
-- CRUD methods for easy access.
-- Have all of your entities in one table and benefit from balancing the Read Capacity Units and Write Capacity Units
-- The ability to handle a `tenant` attribute that would allow to segment the information of multiple clients on the same table.
+- A simplified way to handle the overloaded gsi pattern.
+- CRUD methods to handle entities.
+- Have all of your entities in one table, balancing the Read Capacity Units and Write Capacity Units required to handle them.
+- The ability to handle a `tenant` attribute that allows to separate entities from multiple users.
 - Options to track all indexes and update them when updating the main entity.
-- An option to track indexes via lambda.
+- An option to track indexes via Lambda and DynamoDB streams.
 
 ## Install
 
@@ -164,31 +157,34 @@ var { DynamoDBCRI } = require('dynamodb-cri');
 import { DynamoDBCRI } from 'dynamodb-cri'
 
 DynamoDBCRI.config({
-  indexName: process.env.INDEX // the Index of the table created.
+  indexName: process.env.INDEX // the Index name of the created table.
   tenant: process.env.TENANT,
   documentClient: new AWS.DynamoDB.DocumentClient(),
   tableName: process.env.TABLE_NAME
 });
 ```
 
-
-
-Creating the model: 
+Creating the models: 
 
 ```typescript
 var EmployeeModel = new DynamoDBCRI.Model({
   entity: 'employee'
-  indexes: [ { indexName: 'storeId', proyections: ['storeName'] },
-  { indexName: 'email' }]
+  indexes: [{
+    indexName: 'storeId',
+    proyections: ['storeName']
+  },{
+    indexName: 'email' 
+  }],
   gsik: 'name', // the global secondary key for the model
-  track: true,// Tracks `createdAt` and `updatedAt` attributes
+  track: true, // Tracks `createdAt` and `updatedAt` attributes
   trackIndexes: true // Tracks changes and updates secondary indexes entities
 });
 
-/** This will create three rows with these sk:
-* tenant|employee
-* tenant|employee|storeId
-* tenant|employee|email 
+/** 
+ * This will create items on the table with the following sk values:
+ * - tenant|employee
+ * - tenant|employee|storeId
+ * - tenant|employee|email 
 */
 
 // Get
@@ -221,8 +217,11 @@ EmployeeModel.delete({id: 'cfjasdasdm2oqwedas'});
  * base64 strings on NodeJS.
  */
 
-// Quering the main row, the expression can be any of Dynamo's query expressions
-// such as starts-with, between, >, <, and so on.
+/**
+ * Query the employees entities by its main value: `name`. 
+ * The expression can use any of Dynamo's query expression operators like: 
+ * starts-with, between, >, <, and so on.
+ */
 EmployeeModel.index({
   keyCondition: {
   	key: 'Joe Doe',
@@ -232,26 +231,27 @@ EmployeeModel.index({
   limit: 10
 });
 
-// Quering the index rows
+/**
+ * Query the employees entities by its `document` index.
+ */
 EmployeeModel.index({
   keyCondition: {
   	key: '123',
     expression: 'begins_with(#key,:key)'
   },
   index: 'document',
-  unwrapIndexItems: true // Option to bring all the information from the main row also
+  unwrapIndexItems: true // Gets all the information from the entity
   offset: btoa(JSON.stringify({0: {id: 'cwdhcaecwpsdc'}})),
   limit: 10
 });
 
-
-// Lambda option to hook all changes in the main rows
-
+/**
+ * Lambda function handler to maintain all the indexes by consuming the table's
+ * stream.
+ */
 exports.handler = async (event) => {
-    await DynamoDBCRI.hookDynamoDBStreams([EmployeeModel], event);
+  await DynamoDBCRI.hookDynamoDBStreams([EmployeeModel], event);
 }
-
-
 ```
 
 ## Examples
