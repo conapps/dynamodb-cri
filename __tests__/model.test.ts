@@ -753,7 +753,7 @@ describe('Model', () => {
     test('should call the `documentClient.query` method, but not `documentClient.get` ', async () => {
       await TestModel.query({
         keyCondition: {
-          key: 'TestName',
+          values: [{ ':key': 'TestName' }],
           expression: '#key = :key'
         },
         index: 'document',
@@ -792,7 +792,7 @@ describe('Model', () => {
     test('should call the `documentClient.query` method with appropiate params', async () => {
       await TestModel.query({
         keyCondition: {
-          key: 'TestName',
+          values: [{ ':key': 'TestName' }],
           expression: '#key = :key'
         }
       });
@@ -808,6 +808,31 @@ describe('Model', () => {
         ExpressionAttributeValues: {
           ':sk': 'TestTenant|testEntity',
           ':key': 'TestName'
+        },
+        Limit: 100
+      });
+    });
+
+    test('should call the `documentClient.query` method with appropiate params with a more complex query', async () => {
+      await TestModel.query({
+        keyCondition: {
+          values: [{ ':start': 1995, ':end': 2010 }],
+          expression: '#key between :start and :end'
+        }
+      });
+
+      expect(queryStub.args[0][0]).toEqual({
+        TableName: tableName,
+        IndexName: indexName,
+        KeyConditionExpression: '#sk = :sk and #key between :start and :end',
+        ExpressionAttributeNames: {
+          '#sk': 'sk',
+          '#key': 'gk'
+        },
+        ExpressionAttributeValues: {
+          ':sk': 'TestTenant|testEntity',
+          ':start': 1995,
+          ':end': 2010
         },
         Limit: 100
       });
@@ -883,7 +908,7 @@ describe('Model', () => {
       });
       var data: any = await TestModel.query({
         keyCondition: {
-          key: 'TestName',
+          values: [{ ':key': 'TestName' }],
           expression: '#key = :key'
         },
         index: document,
