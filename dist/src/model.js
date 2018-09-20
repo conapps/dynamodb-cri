@@ -211,20 +211,31 @@ class DynamoDBCRIModel {
         };
     }
     createQueryParameters(options) {
-        var KeyCondition, AttributeValues = {}, AttributeNames = {}, ScanIndexForward = {}, StartKey = {};
+        var KeyCondition, Filter, AttributeValues = {}, AttributeNames = {}, ScanIndexForward = {}, StartKey = {};
         AttributeValues[':sk'] = this.createSecondaryKey(options.index).sk;
         AttributeNames['#sk'] = 'sk';
         KeyCondition = `#sk = :sk`;
         if (options.keyCondition !== undefined) {
-            AttributeValues[':key'] = options.keyCondition.key;
+            options.keyCondition.values.forEach((value) => {
+                AttributeValues = Object.assign({}, value, AttributeValues);
+            });
             AttributeNames['#key'] = 'gk';
             KeyCondition = `${KeyCondition} and ${options.keyCondition.expression}`;
+        }
+        if (options.filter !== undefined) {
+            Filter = options.filter.expression;
+            options.filter.values.forEach((value) => {
+                AttributeValues = Object.assign({}, value, AttributeValues);
+            });
+            options.filter.names.forEach((name) => {
+                AttributeNames = Object.assign({}, name, AttributeNames);
+            });
         }
         if (options.scanIndexForward !== undefined)
             ScanIndexForward = { ScanIndexForward: options.scanIndexForward };
         if (options.offset !== undefined)
             StartKey = this.createStartKey(options.offset, options.index);
-        return Object.assign({ TableName: this.config.tableName, IndexName: this.config.indexName, KeyConditionExpression: KeyCondition, ExpressionAttributeNames: AttributeNames, ExpressionAttributeValues: AttributeValues, Limit: options.limit }, StartKey, ScanIndexForward);
+        return Object.assign({ TableName: this.config.tableName, IndexName: this.config.indexName, KeyConditionExpression: KeyCondition, FilterExpression: Filter, ExpressionAttributeNames: AttributeNames, ExpressionAttributeValues: AttributeValues, Limit: options.limit }, StartKey, ScanIndexForward);
     }
     /**
      * Omits the GSIkeys from an item
