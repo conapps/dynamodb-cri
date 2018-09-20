@@ -334,7 +334,12 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     KeyCondition = `#sk = :sk`;
 
     if (options.keyCondition !== undefined) {
-      AttributeValues[':key'] = options.keyCondition.key;
+      options.keyCondition.values.forEach((value: IItem) => {
+        AttributeValues = {
+          ...value,
+          ...AttributeValues
+        }
+      })
       AttributeNames['#key'] = 'gk';
       KeyCondition = `${KeyCondition} and ${options.keyCondition.expression}`;
     }

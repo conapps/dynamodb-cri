@@ -42,7 +42,7 @@ export interface IDynamoDBCRIModel {
 }
 
 export interface IDynamoDBCRIKeyCondition {
-  key: string;
+  values: IItem;
   expression: string;
 }
 
