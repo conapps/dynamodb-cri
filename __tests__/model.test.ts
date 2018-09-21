@@ -1,5 +1,6 @@
 import * as sinon from 'sinon';
 import * as cuid from 'cuid';
+import { atob, btoa } from '../src/utils';
 import { omit } from 'lodash';
 import { DynamoDB, config as AWSConfig } from 'aws-sdk';
 import { DynamoDBCRI } from '../src';
@@ -66,7 +67,12 @@ describe('Model', () => {
       getStub.returns({
         promise: () =>
           Promise.resolve({
-            Item: { pk: id, gk: name, __v: 'name', sk: `${tenant}|${entity}` }
+            Item: {
+              pk: id,
+              gk: btoa(JSON.stringify(name)),
+              __v: 'name',
+              sk: `${tenant}|${entity}`
+            }
           })
       });
     });
@@ -294,7 +300,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}`,
-          gk: name,
+          gk: btoa(JSON.stringify(name)),
           document,
           email,
           __v: 'name'
@@ -318,7 +324,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}`,
-          gk: name,
+          gk: btoa(JSON.stringify(name)),
           document,
           email,
           __v: 'name'
@@ -351,7 +357,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}`,
-          gk: name,
+          gk: btoa(JSON.stringify(name)),
           document,
           email,
           __v: 'name'
@@ -363,7 +369,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|email`,
-          gk: email,
+          gk: btoa(JSON.stringify(email)),
           __v: 'email',
           __p: '{"document":"123.456.789-9"}'
         }
@@ -374,7 +380,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|document`,
-          gk: document,
+          gk: btoa(JSON.stringify(document)),
           __v: 'document'
         }
       });
@@ -613,7 +619,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|email`,
-          gk: 'newm@mail.com',
+          gk: btoa(JSON.stringify('newm@mail.com')),
           __v: 'email',
           __p: JSON.stringify({ document: '1.234.567-8' })
         }
@@ -624,7 +630,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|document`,
-          gk: '1.234.567-8',
+          gk: btoa(JSON.stringify('1.234.567-8')),
           __v: 'document'
         }
       });
@@ -703,7 +709,7 @@ describe('Model', () => {
             Item: {
               pk: id,
               sk: `${tenant}|${entity}`,
-              gk: name,
+              gk: btoa(JSON.stringify(name)),
               __v: 'name',
               document,
               email
@@ -719,7 +725,7 @@ describe('Model', () => {
                 {
                   pk: id,
                   sk: `${tenant}|${entity}`,
-                  gk: name,
+                  gk: btoa(JSON.stringify(name)),
                   __v: 'name',
                   document,
                   email
@@ -866,7 +872,7 @@ describe('Model', () => {
                 {
                   pk: id,
                   sk: `${tenant}|${entity}|document`,
-                  gk: document,
+                  gk: btoa(JSON.stringify(document)),
                   __v: 'document'
                 }
               ],
@@ -898,7 +904,7 @@ describe('Model', () => {
                 {
                   pk: id,
                   sk: `${tenant}|${entity}|document`,
-                  gk: document,
+                  gk: btoa(JSON.stringify(document)),
                   __v: 'document'
                 }
               ],
