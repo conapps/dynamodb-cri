@@ -82,7 +82,7 @@ class DynamoDBCRIModel {
             if (index.proyections !== undefined) {
                 proyection = this.proyectIndexes(index, body);
             }
-            var item = Object.assign({ pk: body.pk || body.id }, this.createSecondaryKey(index.indexName), { gk: body[index.indexName], __v: index.indexName }, proyection);
+            var item = Object.assign({ pk: body.pk || body.id }, this.createSecondaryKey(index.indexName), { gk: utils_1.btoa(JSON.stringify(body[index.indexName])), __v: index.indexName }, proyection);
             var params = {
                 TableName: this.config.tableName,
                 Item: item
@@ -116,7 +116,7 @@ class DynamoDBCRIModel {
     }
     async create(attributes) {
         var track = this.trackChanges(attributes);
-        var body = Object.assign({ pk: attributes.id || cuid() }, this.createSecondaryKey(), { gk: attributes[this.config.gsik], __v: this.config.gsik }, lodash_1.omit(attributes, ['id', this.config.gsik]), track);
+        var body = Object.assign({ pk: attributes.id || cuid() }, this.createSecondaryKey(), { gk: utils_1.btoa(JSON.stringify(attributes[this.config.gsik])), __v: this.config.gsik }, lodash_1.omit(attributes, ['id', this.config.gsik]), track);
         var params = {
             TableName: this.config.tableName,
             Item: body
@@ -211,20 +211,31 @@ class DynamoDBCRIModel {
         };
     }
     createQueryParameters(options) {
-        var KeyCondition, AttributeValues = {}, AttributeNames = {}, ScanIndexForward = {}, StartKey = {};
+        var KeyCondition, Filter, AttributeValues = {}, AttributeNames = {}, ScanIndexForward = {}, StartKey = {};
         AttributeValues[':sk'] = this.createSecondaryKey(options.index).sk;
         AttributeNames['#sk'] = 'sk';
         KeyCondition = `#sk = :sk`;
         if (options.keyCondition !== undefined) {
-            AttributeValues[':key'] = options.keyCondition.key;
+            options.keyCondition.values.forEach((value) => {
+                AttributeValues = Object.assign({}, value, AttributeValues);
+            });
             AttributeNames['#key'] = 'gk';
             KeyCondition = `${KeyCondition} and ${options.keyCondition.expression}`;
+        }
+        if (options.filter !== undefined) {
+            Filter = options.filter.expression;
+            options.filter.values.forEach((value) => {
+                AttributeValues = Object.assign({}, value, AttributeValues);
+            });
+            options.filter.names.forEach((name) => {
+                AttributeNames = Object.assign({}, name, AttributeNames);
+            });
         }
         if (options.scanIndexForward !== undefined)
             ScanIndexForward = { ScanIndexForward: options.scanIndexForward };
         if (options.offset !== undefined)
             StartKey = this.createStartKey(options.offset, options.index);
-        return Object.assign({ TableName: this.config.tableName, IndexName: this.config.indexName, KeyConditionExpression: KeyCondition, ExpressionAttributeNames: AttributeNames, ExpressionAttributeValues: AttributeValues, Limit: options.limit }, StartKey, ScanIndexForward);
+        return Object.assign({ TableName: this.config.tableName, IndexName: this.config.indexName, KeyConditionExpression: KeyCondition, FilterExpression: Filter, ExpressionAttributeNames: AttributeNames, ExpressionAttributeValues: AttributeValues, Limit: options.limit }, StartKey, ScanIndexForward);
     }
     /**
      * Omits the GSIkeys from an item
@@ -239,7 +250,7 @@ class DynamoDBCRIModel {
      */
     unwrapGSIK(item) {
         if (item.__v)
-            item[item.__v] = item.gk;
+            item[item.__v] = JSON.parse(utils_1.atob(item.gk));
         item.id = item.pk;
         if (item.__p)
             item = Object.assign({}, item, JSON.parse(item.__p));

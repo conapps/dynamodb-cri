@@ -86,7 +86,7 @@ describe('Model', () => {
         Item: {
           pk: NewImage.pk.S,
           sk: `${NewImage.sk.S}|email`,
-          gk: NewImage.email.S,
+          gk: btoa(JSON.stringify(NewImage.email.S)),
           __v: 'email',
           __p: '{"document":"123.456.7-9"}'
         }
@@ -96,7 +96,7 @@ describe('Model', () => {
         Item: {
           pk: NewImage.pk.S,
           sk: `${NewImage.sk.S}|document`,
-          gk: NewImage.document.S,
+          gk: btoa(JSON.stringify(NewImage.document.S)),
           __v: 'document'
         }
       });
@@ -125,7 +125,7 @@ describe('Model', () => {
         Item: {
           pk: NewImage.pk.S,
           sk: `${NewImage.sk.S}|email`,
-          gk: NewImage.email.S,
+          gk: btoa(JSON.stringify(NewImage.email.S)),
           __v: 'email',
           __p: '{"document":"123.456.7-9"}'
         }
@@ -135,7 +135,7 @@ describe('Model', () => {
         Item: {
           pk: NewImage.pk.S,
           sk: `${NewImage.sk.S}|document`,
-          gk: NewImage.document.S,
+          gk: btoa(JSON.stringify(NewImage.document.S)),
           __v: 'document'
         }
       });
@@ -243,7 +243,7 @@ describe('Model', () => {
             Item: {
               pk: NewImage.pk.S,
               sk: NewImage.sk.S,
-              gk: NewImage.gk.S,
+              gk: btoa(JSON.stringify(NewImage.gk.S)),
               __v: NewImage.__v.S,
               email: NewImage.email.S,
               document: NewImage.document.S
@@ -284,7 +284,7 @@ describe('Model', () => {
         Item: {
           pk: NewImage.pk.S,
           sk: `${NewImage.sk.S}|email`,
-          gk: NewImage.email.S,
+          gk: btoa(JSON.stringify(NewImage.email.S)),
           __v: 'email',
           __p: '{"document":"123.456.7-9"}'
         }
@@ -295,7 +295,7 @@ describe('Model', () => {
         Item: {
           pk: NewImage.pk.S,
           sk: `${NewImage.sk.S}|document`,
-          gk: NewImage.document.S,
+          gk: btoa(JSON.stringify(NewImage.document.S)),
           __v: 'document'
         }
       });
