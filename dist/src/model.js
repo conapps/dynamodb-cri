@@ -82,7 +82,7 @@ class DynamoDBCRIModel {
             if (index.proyections !== undefined) {
                 proyection = this.proyectIndexes(index, body);
             }
-            var item = Object.assign({ pk: body.pk || body.id }, this.createSecondaryKey(index.indexName), { gk: utils_1.btoa(JSON.stringify(body[index.indexName])), __v: index.indexName }, proyection);
+            var item = Object.assign({ pk: body.pk || body.id }, this.createSecondaryKey(index.indexName), { gk: JSON.stringify(body[index.indexName]), __v: index.indexName }, proyection);
             var params = {
                 TableName: this.config.tableName,
                 Item: item
@@ -116,7 +116,7 @@ class DynamoDBCRIModel {
     }
     async create(attributes) {
         var track = this.trackChanges(attributes);
-        var body = Object.assign({ pk: attributes.id || cuid() }, this.createSecondaryKey(), { gk: utils_1.btoa(JSON.stringify(attributes[this.config.gsik])), __v: this.config.gsik }, lodash_1.omit(attributes, ['id', this.config.gsik]), track);
+        var body = Object.assign({ pk: attributes.id || cuid() }, this.createSecondaryKey(), { gk: JSON.stringify(attributes[this.config.gsik]), __v: this.config.gsik }, lodash_1.omit(attributes, ['id', this.config.gsik]), track);
         var params = {
             TableName: this.config.tableName,
             Item: body
@@ -250,7 +250,7 @@ class DynamoDBCRIModel {
      */
     unwrapGSIK(item) {
         if (item.__v)
-            item[item.__v] = JSON.parse(utils_1.atob(item.gk));
+            item[item.__v] = JSON.parse(item.gk);
         item.id = item.pk;
         if (item.__p)
             item = Object.assign({}, item, JSON.parse(item.__p));

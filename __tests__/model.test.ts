@@ -69,7 +69,7 @@ describe('Model', () => {
           Promise.resolve({
             Item: {
               pk: id,
-              gk: btoa(JSON.stringify(name)),
+              gk: JSON.stringify(name),
               __v: 'name',
               sk: `${tenant}|${entity}`
             }
@@ -300,7 +300,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}`,
-          gk: btoa(JSON.stringify(name)),
+          gk: JSON.stringify(name),
           document,
           email,
           __v: 'name'
@@ -324,7 +324,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}`,
-          gk: btoa(JSON.stringify(name)),
+          gk: JSON.stringify(name),
           document,
           email,
           __v: 'name'
@@ -357,7 +357,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}`,
-          gk: btoa(JSON.stringify(name)),
+          gk: JSON.stringify(name),
           document,
           email,
           __v: 'name'
@@ -369,7 +369,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|email`,
-          gk: btoa(JSON.stringify(email)),
+          gk: JSON.stringify(email),
           __v: 'email',
           __p: '{"document":"123.456.789-9"}'
         }
@@ -380,7 +380,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|document`,
-          gk: btoa(JSON.stringify(document)),
+          gk: JSON.stringify(document),
           __v: 'document'
         }
       });
@@ -619,7 +619,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|email`,
-          gk: btoa(JSON.stringify('newm@mail.com')),
+          gk: JSON.stringify('newm@mail.com'),
           __v: 'email',
           __p: JSON.stringify({ document: '1.234.567-8' })
         }
@@ -630,7 +630,7 @@ describe('Model', () => {
         Item: {
           pk: id,
           sk: `${tenant}|${entity}|document`,
-          gk: btoa(JSON.stringify('1.234.567-8')),
+          gk: JSON.stringify('1.234.567-8'),
           __v: 'document'
         }
       });
@@ -709,7 +709,7 @@ describe('Model', () => {
             Item: {
               pk: id,
               sk: `${tenant}|${entity}`,
-              gk: btoa(JSON.stringify(name)),
+              gk: JSON.stringify(name),
               __v: 'name',
               document,
               email
@@ -725,7 +725,7 @@ describe('Model', () => {
                 {
                   pk: id,
                   sk: `${tenant}|${entity}`,
-                  gk: btoa(JSON.stringify(name)),
+                  gk: JSON.stringify(name),
                   __v: 'name',
                   document,
                   email
@@ -872,7 +872,7 @@ describe('Model', () => {
                 {
                   pk: id,
                   sk: `${tenant}|${entity}|document`,
-                  gk: btoa(JSON.stringify(document)),
+                  gk: JSON.stringify(document),
                   __v: 'document'
                 }
               ],
@@ -904,7 +904,7 @@ describe('Model', () => {
                 {
                   pk: id,
                   sk: `${tenant}|${entity}|document`,
-                  gk: btoa(JSON.stringify(document)),
+                  gk: JSON.stringify(document),
                   __v: 'document'
                 }
               ],
