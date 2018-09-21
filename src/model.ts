@@ -116,7 +116,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       var item: IItem = {
         pk: body.pk || body.id,
         ...this.createSecondaryKey(index.indexName),
-        gk: btoa(JSON.stringify(body[index.indexName])),
+        gk: JSON.stringify(body[index.indexName]),
         __v: index.indexName,
         ...proyection
       };
@@ -174,7 +174,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     var body: IItem = {
       pk: attributes.id || cuid(),
       ...this.createSecondaryKey(),
-      gk: btoa(JSON.stringify(attributes[this.config.gsik])),
+      gk: JSON.stringify(attributes[this.config.gsik]),
       __v: this.config.gsik,
       ...omit(attributes, ['id', this.config.gsik]),
       ...track
@@ -391,7 +391,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
    * @param item Item to unwrap
    */
   private unwrapGSIK(item: IItem): any {
-    if (item.__v) item[item.__v] = JSON.parse(atob(item.gk));
+    if (item.__v) item[item.__v] = JSON.parse(item.gk);
 
     item.id = item.pk;
 
