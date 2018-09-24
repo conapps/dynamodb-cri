@@ -225,7 +225,12 @@ class DynamoDBCRIModel {
         if (options.filter !== undefined) {
             Filter = options.filter.expression;
             options.filter.values.forEach((value) => {
-                AttributeValues = Object.assign({}, value, AttributeValues);
+                if (value[':key'] !== undefined) {
+                    AttributeValues = Object.assign({ ":key": JSON.stringify(value[':key']) }, AttributeValues);
+                }
+                else {
+                    AttributeValues = Object.assign({}, value, AttributeValues);
+                }
             });
             options.filter.names.forEach((name) => {
                 AttributeNames = Object.assign({}, name, AttributeNames);

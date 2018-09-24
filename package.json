@@ -1,6 +1,6 @@
 {
   "name": "dynamodb-cri",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "main": "dist/src/index.js",
   "typings": "./dynamodb-cri.d.ts",
   "license": "MIT",

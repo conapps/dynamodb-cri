@@ -347,10 +347,19 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     if (options.filter !== undefined){
       Filter = options.filter.expression
       options.filter.values.forEach((value: IItem) => {
-        AttributeValues = {
-          ...value,
-          ...AttributeValues
+        
+        if (value[':key'] !== undefined ){
+          AttributeValues = {
+            ...{":key": JSON.stringify(value[':key'])},
+            ...AttributeValues
+          }
+        } else {
+          AttributeValues = {
+            ...value,
+            ...AttributeValues
+          }
         }
+
       })
       options.filter.names.forEach((name: IItem) => {
        AttributeNames = {
