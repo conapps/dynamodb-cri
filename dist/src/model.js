@@ -217,7 +217,12 @@ class DynamoDBCRIModel {
         KeyCondition = `#sk = :sk`;
         if (options.keyCondition !== undefined) {
             options.keyCondition.values.forEach((value) => {
-                AttributeValues = Object.assign({}, value, AttributeValues);
+                if (value[':key'] !== undefined) {
+                    AttributeValues = Object.assign({ ":key": JSON.stringify(value[':key']) }, AttributeValues);
+                }
+                else {
+                    AttributeValues = Object.assign({}, value, AttributeValues);
+                }
             });
             AttributeNames['#key'] = 'gk';
             KeyCondition = `${KeyCondition} and ${options.keyCondition.expression}`;

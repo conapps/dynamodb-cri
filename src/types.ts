@@ -21,7 +21,7 @@ export interface IDynamoDBCRIModelConfig {
 
 export interface IDynamoDBCRIIndexes {
   indexName: string;
-  proyections?: string[];
+  projections?: string[];
   enforceProyection?: boolean;
 }
 

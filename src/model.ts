@@ -93,24 +93,24 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
   }
 
   /**
-   *  Given an index, creates the proyection attribute
+   *  Given an index, creates the projection attribute
    * @param index Index to proyect
    * @param item  Item with attributes to proyect
    */
   proyectIndexes(index: IDynamoDBCRIIndexes, item: IItem): IItem {
     var object: IItem = {};
-    index.proyections.forEach(proyection => {
-      object[proyection] = item[proyection];
+    index.projections.forEach(projection => {
+      object[projection] = item[projection];
     });
     return { __p: JSON.stringify(object) };
   }
 
   async putIndexItems(body: IItem): Promise<void> {
     for (let index of this.config.indexes) {
-      var proyection = {};
+      var projection = {};
 
-      if (index.proyections !== undefined) {
-        proyection = this.proyectIndexes(index, body);
+      if (index.projections !== undefined) {
+        projection = this.proyectIndexes(index, body);
       }
 
       var item: IItem = {
@@ -118,7 +118,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
         ...this.createSecondaryKey(index.indexName),
         gk: JSON.stringify(body[index.indexName]),
         __v: index.indexName,
-        ...proyection
+        ...projection
       };
 
       var params: DynamoDB.DocumentClient.PutItemInput = {
@@ -253,8 +253,8 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
 
     this.config.indexes.forEach(index => {
       indexes.push(index.indexName);
-      if (index.proyections !== undefined) {
-        indexes.push(...index.proyections);
+      if (index.projections !== undefined) {
+        indexes.push(...index.projections);
       }
     });
 
@@ -335,9 +335,16 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
 
     if (options.keyCondition !== undefined) {
       options.keyCondition.values.forEach((value: IItem) => {
-        AttributeValues = {
-          ...value,
-          ...AttributeValues
+        if (value[':key'] !== undefined ){
+          AttributeValues = {
+            ...{":key": JSON.stringify(value[':key'])},
+            ...AttributeValues
+          }
+        } else {
+          AttributeValues = {
+            ...value,
+            ...AttributeValues
+          }
         }
       })
       AttributeNames['#key'] = 'gk';

@@ -32,7 +32,7 @@ DynamoDBCRI.config(params);
 
 var entity = 'testEntity';
 var indexes = [
-  { indexName: 'email', proyections: ['document'] },
+  { indexName: 'email', projections: ['document'] },
   { indexName: 'document' }
 ];
 var gsik = 'name';

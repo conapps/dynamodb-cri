@@ -32,7 +32,7 @@ DynamoDBCRI.config(params);
 
 var entity = 'testEntity';
 var indexes = [
-  { indexName: 'email', proyections: ['document'] },
+  { indexName: 'email', projections: ['document'] },
   { indexName: 'document' }
 ];
 var gsik = 'name';
@@ -813,7 +813,7 @@ describe('Model', () => {
         },
         ExpressionAttributeValues: {
           ':sk': 'TestTenant|testEntity',
-          ':key': 'TestName'
+          ':key': JSON.stringify('TestName')
         },
         Limit: 100
       });
