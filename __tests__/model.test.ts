@@ -813,7 +813,7 @@ describe('Model', () => {
         },
         ExpressionAttributeValues: {
           ':sk': 'TestTenant|testEntity',
-          ':key': 'TestName'
+          ':key': JSON.stringify('TestName')
         },
         Limit: 100
       });

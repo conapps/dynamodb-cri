@@ -335,19 +335,6 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
 
     if (options.keyCondition !== undefined) {
       options.keyCondition.values.forEach((value: IItem) => {
-        AttributeValues = {
-          ...value,
-          ...AttributeValues
-        }
-      })
-      AttributeNames['#key'] = 'gk';
-      KeyCondition = `${KeyCondition} and ${options.keyCondition.expression}`;
-    }
-
-    if (options.filter !== undefined){
-      Filter = options.filter.expression
-      options.filter.values.forEach((value: IItem) => {
-        
         if (value[':key'] !== undefined ){
           AttributeValues = {
             ...{":key": JSON.stringify(value[':key'])},
@@ -359,7 +346,18 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
             ...AttributeValues
           }
         }
+      })
+      AttributeNames['#key'] = 'gk';
+      KeyCondition = `${KeyCondition} and ${options.keyCondition.expression}`;
+    }
 
+    if (options.filter !== undefined){
+      Filter = options.filter.expression
+      options.filter.values.forEach((value: IItem) => {
+        AttributeValues = {
+          ...value,
+          ...AttributeValues
+        }
       })
       options.filter.names.forEach((name: IItem) => {
        AttributeNames = {
