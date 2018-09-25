@@ -171,7 +171,7 @@ var EmployeeModel = new DynamoDBCRI.Model({
   entity: 'employee'
   indexes: [{
     indexName: 'storeId',
-    proyections: ['storeName']
+    projections: ['storeName']
   },{
     indexName: 'email' 
   }],
