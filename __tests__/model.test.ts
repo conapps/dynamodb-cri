@@ -308,6 +308,21 @@ describe('Model', () => {
       });
     });
 
+    test('should call the `documentClient.put` function with appropriate params', async () => {
+      await TestModelWOIndexes.create({ id, name, email, document }, 'name');
+
+      expect(putStub.args[0][0]).toEqual({
+        TableName: tableName,
+        Item: {
+          pk: id,
+          sk: `${tenant}|${entity}|name`,
+          gk: JSON.stringify(name),
+          document,
+          email,
+          __v: 'name'
+        }
+      });
+    });
     /******* Tests for Model with indexes without tracking ********/
 
     test('should configure a call to the `documentClient.put` function', async () => {
