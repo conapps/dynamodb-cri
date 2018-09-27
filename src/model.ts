@@ -167,13 +167,14 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
   }
 
   async create(
-    attributes: IDynamoDBCRIItem
+    attributes: IDynamoDBCRIItem,
+    index: string = undefined
   ): Promise<IDynamoDBCRIResponseItem> {
     var track: IDynamoDBCRIModelTrack = this.trackChanges(attributes);
 
     var body: IItem = {
       pk: attributes.id || cuid(),
-      ...this.createSecondaryKey(),
+      ...this.createSecondaryKey(index),
       gk: JSON.stringify(attributes[this.config.gsik]),
       __v: this.config.gsik,
       ...omit(attributes, ['id', this.config.gsik]),
