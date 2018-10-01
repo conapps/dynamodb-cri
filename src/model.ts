@@ -46,6 +46,10 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       this._config.tableName = config.tableName
     }
 
+    if (config.documentClient !== undefined){
+      this._config.documentClient = config.documentClient
+    }
+
     if (config.tenant !== undefined){
       this._config.tenant = config.tenant
     }
