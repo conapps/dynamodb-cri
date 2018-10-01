@@ -203,6 +203,12 @@ EmployeeModel.create({
     storeName: 'Store N1'
 });
 
+// Create
+EmployeeModel.create({ 
+    id: 'abcd', 
+    storeName: 'Store N1'
+}, 'storeId');
+
 // Update
 EmployeeModel.update({
   id: 'abcd',
