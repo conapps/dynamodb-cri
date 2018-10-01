@@ -20,6 +20,9 @@ class DynamoDBCRIModel {
         if (config.tableName !== undefined) {
             this._config.tableName = config.tableName;
         }
+        if (config.documentClient !== undefined) {
+            this._config.documentClient = config.documentClient;
+        }
         if (config.tenant !== undefined) {
             this._config.tenant = config.tenant;
         }
@@ -65,24 +68,24 @@ class DynamoDBCRIModel {
         return result;
     }
     /**
-     *  Given an index, creates the proyection attribute
+     *  Given an index, creates the projection attribute
      * @param index Index to proyect
      * @param item  Item with attributes to proyect
      */
     proyectIndexes(index, item) {
         var object = {};
-        index.proyections.forEach(proyection => {
-            object[proyection] = item[proyection];
+        index.projections.forEach(projection => {
+            object[projection] = item[projection];
         });
         return { __p: JSON.stringify(object) };
     }
     async putIndexItems(body) {
         for (let index of this.config.indexes) {
-            var proyection = {};
-            if (index.proyections !== undefined) {
-                proyection = this.proyectIndexes(index, body);
+            var projection = {};
+            if (index.projections !== undefined) {
+                projection = this.proyectIndexes(index, body);
             }
-            var item = Object.assign({ pk: body.pk || body.id }, this.createSecondaryKey(index.indexName), { gk: JSON.stringify(body[index.indexName]), __v: index.indexName }, proyection);
+            var item = Object.assign({ pk: body.pk || body.id }, this.createSecondaryKey(index.indexName), { gk: JSON.stringify(body[index.indexName]), __v: index.indexName }, projection);
             var params = {
                 TableName: this.config.tableName,
                 Item: item
@@ -114,9 +117,9 @@ class DynamoDBCRIModel {
             ExpressionAttributeValues: attributeValues
         };
     }
-    async create(attributes) {
+    async create(attributes, index = undefined) {
         var track = this.trackChanges(attributes);
-        var body = Object.assign({ pk: attributes.id || cuid() }, this.createSecondaryKey(), { gk: JSON.stringify(attributes[this.config.gsik]), __v: this.config.gsik }, lodash_1.omit(attributes, ['id', this.config.gsik]), track);
+        var body = Object.assign({ pk: attributes.id || cuid() }, this.createSecondaryKey(index), { gk: JSON.stringify(attributes[this.config.gsik]), __v: this.config.gsik }, lodash_1.omit(attributes, ['id', this.config.gsik]), track);
         var params = {
             TableName: this.config.tableName,
             Item: body
@@ -168,8 +171,8 @@ class DynamoDBCRIModel {
         var indexes = [];
         this.config.indexes.forEach(index => {
             indexes.push(index.indexName);
-            if (index.proyections !== undefined) {
-                indexes.push(...index.proyections);
+            if (index.projections !== undefined) {
+                indexes.push(...index.projections);
             }
         });
         return [...new Set(indexes)];

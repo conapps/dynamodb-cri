@@ -18,14 +18,14 @@ export declare class DynamoDBCRIModel implements IDynamoDBCRIModel {
      */
     trackChanges(attributes: IDynamoDBCRIItem): IDynamoDBCRIModelTrack;
     /**
-     *  Given an index, creates the proyection attribute
+     *  Given an index, creates the projection attribute
      * @param index Index to proyect
      * @param item  Item with attributes to proyect
      */
     proyectIndexes(index: IDynamoDBCRIIndexes, item: IItem): IItem;
     putIndexItems(body: IItem): Promise<void>;
     private createUpdateExpressionParams;
-    create(attributes: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
+    create(attributes: IDynamoDBCRIItem, index?: string): Promise<IDynamoDBCRIResponseItem>;
     /**
      * Deletes the elements created by the idnexes
      * @param key primary key of elements
