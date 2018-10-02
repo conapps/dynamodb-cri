@@ -18,7 +18,6 @@ import {
   IDynamoDBCRIResponseItems
 } from './types';
 import { globalConfig } from './index';
-import { AttributeValue } from 'aws-lambda';
 
 export class DynamoDBCRIModel implements IDynamoDBCRIModel {
   
@@ -250,7 +249,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
       })
       .promise();
 
-    return  { item: this.unwrapGSIK(data.Item) };
+    return  data.Item !== undefined ? { item: this.unwrapGSIK(data.Item) } : undefined;
   }
 
   private flattenIndexes(): string[] {
