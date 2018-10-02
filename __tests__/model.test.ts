@@ -103,6 +103,18 @@ describe('Model', () => {
       });
     });
 
+    test('should return undefined if cant find the element', async () => {
+      getStub.restore();
+      getStub = sinon.stub(db, 'get');
+      getStub.returns({
+        promise: () => Promise.resolve({})
+      });
+
+      var data = await TestModel.get({ id });
+
+      expect(data).toEqual(undefined);
+    });
+
     test('should call the `documentClient.get` function with appropriate params', async () => {
       await TestModel.get({ id, index: 'mail' });
 
