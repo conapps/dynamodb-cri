@@ -165,7 +165,7 @@ class DynamoDBCRIModel {
             Key: Object.assign({ pk: key.id }, this.createSecondaryKey(key.index))
         })
             .promise();
-        return { item: this.unwrapGSIK(data.Item) };
+        return data.Item !== undefined ? { item: this.unwrapGSIK(data.Item) } : undefined;
     }
     flattenIndexes() {
         var indexes = [];
