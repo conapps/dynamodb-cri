@@ -510,6 +510,26 @@ describe('Model', () => {
       });
     });
 
+    test('should call the `documentClient.update` with valid params in index', async () => {
+      var name = 'newName';
+      await TestModel.update({ id, name }, 'new');
+
+      expect(updateStub.args[0][0]).toEqual({
+        TableName: tableName,
+        Key: {
+          pk: id,
+          sk: `${tenant}|${entity}|new`
+        },
+        UpdateExpression: 'SET #gk = :name',
+        ExpressionAttributeNames: {
+          '#gk': 'gk'
+        },
+        ExpressionAttributeValues: {
+          ':name': name
+        }
+      });
+    });
+
     test('should add an `updatedAt` value if `track` is `true`', async () => {
       var _config = { ...config, trackDates: true };
       var TestModel = new DynamoDBCRI.Model(_config);

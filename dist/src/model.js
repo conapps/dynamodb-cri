@@ -194,14 +194,14 @@ class DynamoDBCRIModel {
             .promise();
         await this.putIndexItems(response.Item);
     }
-    async update(body) {
+    async update(body, index = undefined) {
         if (body.id === undefined) {
             throw new Error(`The value of id can't be undefined`);
         }
         if (this.config.trackDates === true)
             body = Object.assign({}, body, this.trackChanges(body));
         await this.config.documentClient
-            .update(Object.assign({ TableName: this.config.tableName, Key: Object.assign({ pk: body.id }, this.createSecondaryKey()) }, this.createUpdateExpressionParams(body)))
+            .update(Object.assign({ TableName: this.config.tableName, Key: Object.assign({ pk: body.id }, this.createSecondaryKey(index)) }, this.createUpdateExpressionParams(body)))
             .promise();
         if (this.config.trackIndexes) {
             this.updateIndexesItems(body);
