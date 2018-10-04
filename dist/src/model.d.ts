@@ -36,7 +36,7 @@ export declare class DynamoDBCRIModel implements IDynamoDBCRIModel {
     private flattenIndexes;
     private needUpdateIndexes;
     updateIndexesItems(body: IDynamoDBCRIItem | IItem): Promise<void>;
-    update(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
+    update(body: IDynamoDBCRIItem, index?: string): Promise<IDynamoDBCRIResponseItem>;
     private createStartKey;
     private createQueryParameters;
     /**
