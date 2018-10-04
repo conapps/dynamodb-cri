@@ -288,7 +288,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
     await this.putIndexItems(response.Item);
   }
 
-  async update(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem> {
+  async update(body: IDynamoDBCRIItem, index: string = undefined): Promise<IDynamoDBCRIResponseItem> {
     if (body.id === undefined) {
       throw new Error(`The value of id can't be undefined`);
     }
@@ -301,7 +301,7 @@ export class DynamoDBCRIModel implements IDynamoDBCRIModel {
         TableName: this.config.tableName,
         Key: {
           pk: body.id,
-          ...this.createSecondaryKey()
+          ...this.createSecondaryKey(index)
         },
         ...this.createUpdateExpressionParams(body)
       })

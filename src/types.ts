@@ -37,7 +37,10 @@ export interface IDynamoDBCRIModel {
     body: IDynamoDBCRIItem,
     index: string
   ): Promise<IDynamoDBCRIResponseItem>;
-  update(body: IDynamoDBCRIItem): Promise<IDynamoDBCRIResponseItem>;
+  update(
+    body: IDynamoDBCRIItem,
+    index: string
+  ): Promise<IDynamoDBCRIResponseItem>;
   query(options?: IDynamoDBCRIIndexOptions): Promise<IDynamoDBCRIResponseItems>;
   putIndexItems(body: IItem): Promise<void>;
   deleteIndexItems(key: IDynamoDBKey): Promise<void>;
