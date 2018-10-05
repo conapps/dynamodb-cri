@@ -37,7 +37,7 @@ export interface IDynamoDBCRIModel {
   updateIndexesItems(body: IDynamoDBCRIItem | IItem): Promise<void>;
 }
 export interface IDynamoDBCRIKeyCondition {
-  key: string;
+  values: IItem[];
   expression: string;
 }
 export interface IDynamoDBCRIIndexOptions {
