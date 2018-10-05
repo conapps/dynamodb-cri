@@ -61,6 +61,7 @@ export interface IGSIKItem {
 }
 export interface IDynamoDBCRIResponseItems {
   items: IItem[];
+  [key: string]: any;
 }
 export interface IDynamoDBCRIGetOptions {
   id: string;
