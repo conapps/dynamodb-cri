@@ -44,6 +44,7 @@ export interface IDynamoDBCRIIndexOptions {
   keyCondition?: IDynamoDBCRIKeyCondition;
   offset?: string;
   index?: string;
+  filter?: IItem;
   unwrapIndexItems?: boolean;
   limit?: number;
   scanIndexForward?: boolean;
