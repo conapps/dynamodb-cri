@@ -100,7 +100,7 @@ class DynamoDBCRIModel {
             if (key === this.config.gsik) {
                 expressions.push(`#gk = :${key}`);
                 attributeNames[`#gk`] = 'gk';
-                attributeValues[`:${key}`] = body[key];
+                attributeValues[`:${key}`] = JSON.stringify(body[key]);
             }
             else {
                 expressions.push(`#${key} = :${key}`);

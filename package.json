@@ -1,6 +1,6 @@
 {
   "name": "dynamodb-cri",
-  "version": "1.1.23",
+  "version": "1.1.25",
   "main": "dist/src/index.js",
   "typings": "./dynamodb-cri.d.ts",
   "license": "MIT",
@@ -48,6 +48,7 @@
   "dependencies": {
     "aws-sdk": "^2.306.0",
     "cuid": "^2.1.4",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "merge": "^1.2.1"
   }
 }
